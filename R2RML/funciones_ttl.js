@@ -21,6 +21,7 @@ var elemento;
     
 }
 const result=getTriplesId();
+console.log('Tarea 1: Obtener todos los Triples Maps:')
 console.log(result);
 
 /********************************************************************* */
@@ -78,4 +79,39 @@ console.log(`Object Map = ${objectMapId}`);
 console.log(`Predicate = ${predicateId}`);
 /***************************************** */
 
+/*4. Función para obtener nombre tabla a partir de logicalTable*/
+function getTableName (logTableId){
+    var tableName, elemento4;
+    for (var j in jsonFile["@graph"]){
+        elemento4= jsonFile["@graph"][j];
 
+        if(elemento4["@id"]===logTableId){
+            tableName= elemento4['rr:tableName'];
+        }
+    }
+    return tableName;
+}
+console.log(`\nTarea 4: Obtener nombre de tabla`);
+const result3= getTableName(logicalTableId);
+console.log(`Table Name = ${result3}`);
+/*************************************************** */
+/*5. Obtener joinCondition y ParentTriplesMap si existe; Sino, obtener template */ 
+function getIdsFromObjectMap (ObjMapId){
+    var joinConditionId, parentTriplesMapId, elemento4;
+    for (var j in jsonFile["@graph"]){
+        elemento5= jsonFile["@graph"][j];
+
+        if((elemento5["@id"]===ObjMapId) && elemento5.hasOwnProperty('rr:joinCondition')){
+            joinConditionId= elemento5['rr:joinCondition']['@id'];
+            parentTriplesMapId= elemento5['rr:parentTriplesMap']['@id'];
+        }
+    }
+    return {joinConditionId, parentTriplesMapId};
+}
+console.log(`\nTarea 5: Obtener join y tripleta padre`);
+const result4= getIdsFromObjectMap(objectMapId);
+const joinConditionId= result4.joinConditionId;
+const parentTriplesMapId= result4.parentTriplesMapId;
+console.log(`Join Condition = ${joinConditionId}`);
+console.log(`Parent Triples Map = ${parentTriplesMapId}`);
+/********************************************************* */
