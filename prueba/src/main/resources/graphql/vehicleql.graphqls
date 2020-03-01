@@ -1,18 +1,33 @@
-type Vehicle {
-	id: ID!,
-	type: String,
-	modelCode: String,
-	brandName: String,
-	seats: Int,
-	launchDate: String
+type Appears {
+	charid: String
+	episodeid: String
+}
+type Heroes{
+	episode: String
+	charid: String
+}
+
+type Character{
+	id: String
+	fname: String
+	lname: String
+	type: String
+}
+type Episode{
+	eid: String
+	ecode: String
 }
 
 type Query {
-	vehicles(count: Int):[Vehicle]
-	vehicle(id: ID):Vehicle
+	listAppears(charid:String):[Appears]
+	listHeroes(episode:String, charid:String): [Heroes]
+	listCharacter(id: String, fname:String, lname:String, type:String) : [Character]
+	listEpisode(eid:String, ecode:String): [Episode]
 }
 
 type Mutation {
-	createVehicle(type: String!, modelCode: String!, brandName: String, seats: Int, launchDate: String):Vehicle
-	deleteVehicle(id:ID!): Boolean
+	createAppears(charid:String, episodeid:String):Appears
+	createHeroes(episode:String, charid:String):Heroes
+	createCharacter(id:String, fname:String, lname:String, type:String): Character
+	createEpisode(eid:String, ecode:String): Episode
 }
