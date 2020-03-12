@@ -6,10 +6,13 @@ type Friends{
 type Appears {
 	charid: String
 	episodeid: String
+	episode(eid: String, ecode: String): [Episode]
 }
 type Heroes{
-	episode: String
+	episodeid: String
 	charid: String
+	episode(eid:String , ecode:String): [Episode]
+	hero(id:String, fname:String): [Character]
 }
 
 type Character{
@@ -17,6 +20,8 @@ type Character{
 	fname: String
 	lname: String
 	type: String
+	appearsIn(charid:String): [Appears]
+	friendship(id:String, fid:String) : [Friends]
 }
 type Episode{
 	eid: String
@@ -33,8 +38,8 @@ type Query {
 
 type Mutation {
 	createFriends(id:String, fid:String): Friends
-	createAppears(charid:String, episodeid:String): Appears
+	createAppears(charid:Long, episodeid:String): Appears
 	createHeroes(episode:String, charid:String): Heroes
-	createCharacter(id:String, fname:String, lname:String, type:String): Character
+	createCharacter(id:Long, fname:String, lname:String, type:String): Character
 	createEpisode(eid:String, ecode:String): Episode
 }
