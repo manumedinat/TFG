@@ -1,6 +1,6 @@
 package com.example.demo.query;
 
-import java.util.Optional;
+
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.example.demo.dao.entity.Character;
@@ -15,4 +15,5 @@ public class CharacterQuery implements GraphQLQueryResolver {
     public Iterable<Character> listCharacter(String id, String fname, String lname, String type) {
         return this.characterService.getAllCharacters(id,fname,lname,type);
     }
+    
 }
