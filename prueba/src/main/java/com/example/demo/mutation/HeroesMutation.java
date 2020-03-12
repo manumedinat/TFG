@@ -10,7 +10,7 @@ import com.example.demo.service.*;
 public class HeroesMutation implements GraphQLMutationResolver {
     @Autowired
     private HeroesService heroesService;
-    public Heroes createHeroes(String episode, String charid) {
-        return this.heroesService.createHeroes(episode, charid);
+    public Heroes createHeroes(String episodeid, String charid) {
+        return this.heroesService.createHeroes(episodeid, charid);
     }
 }
