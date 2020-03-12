@@ -18,16 +18,16 @@ public class HeroesService {
     }
 
     @Transactional
-    public Heroes createHeroes(String episode, String charid) {
+    public Heroes createHeroes(String episodeid, String charid) {
         final Heroes heroes = new Heroes();
-        heroes.setEpisode(episode);
+        heroes.setEpisodeid(episodeid);
         heroes.setCharid(charid);
         return this.heroesRepository.save(heroes);
     }
 
     @Transactional(readOnly = true)
-    public Iterable<Heroes> getAllHeroes(String episode, String charid) {
-        return this.heroesRepository.findHeroesByCharidOrEpisode(episode, charid);
+    public Iterable<Heroes> getAllHeroes(String episodeid, String charid) {
+        return this.heroesRepository.findHeroesByCharidOrEpisodeid(episodeid, charid);
     }
    
 }
