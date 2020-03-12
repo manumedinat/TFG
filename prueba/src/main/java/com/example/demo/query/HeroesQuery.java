@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class HeroesQuery implements GraphQLQueryResolver {
     @Autowired
     private HeroesService heroesService;
-    public Iterable<Heroes> listHeroes(String episode, String charid) {
-        return this.heroesService.getAllHeroes(episode, charid);
+    public Iterable<Heroes> listHeroes(String episodeid, String charid) {
+        return this.heroesService.getAllHeroes(episodeid, charid);
     }
 }
