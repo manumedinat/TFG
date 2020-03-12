@@ -1,4 +1,6 @@
 package com.example.demo.query;
+
+
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.example.demo.dao.entity.Appears;
 import com.example.demo.service.AppearsService;
@@ -12,4 +14,7 @@ public class AppearsQuery implements GraphQLQueryResolver {
     public Iterable<Appears> listAppears(final String charid) {
         return this.appearsService.getAllAppears(charid);
     }
+
+    
+   
 }
