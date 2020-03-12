@@ -16,9 +16,9 @@ public class Heroes implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "ID_Heroes", nullable = false)
-    private String episode;
+   // @Column(name = "ID_Heroes", nullable = false)
+    private String episodeid;
 
-    @Column(name = "char_id", nullable = false)
+   // @Column(name = "char_id", nullable = false)
     private String charid;
 }
