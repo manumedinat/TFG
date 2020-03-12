@@ -12,24 +12,31 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode
 @Entity
+@Table (name="characters")
 public class Character implements Serializable {
 
+  
+
     private static final long serialVersionUID = 1L;
+    
 
     @Id
-    @Column(name = "ID_Character", nullable = false)
+    //@Column(name = "ch_id", nullable = false)
     private String id;
-    @OneToOne(mappedBy = "character", optional = true, cascade = CascadeType.PERSIST)
-    private Appears appears;
 
+    @OneToOne
+    @MapsId
+    @JoinColumn(name="id")
+    private Friends friends;
 
-    @Column(name = "f_name", nullable = false)
+    @Column(name = "fname", nullable = false)
     private String fname;
 
-    @Column(name = "l_name")
+    @Column(name = "lname")
     private String lname;
 
     @Column(name = "type", nullable = false)
     private String type;
+
 
 }
