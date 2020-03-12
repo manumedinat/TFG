@@ -16,9 +16,10 @@ public class Friends implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "ID_Friends", nullable = false)
+   // @Column(name = "ID_Friends", nullable = false)
     private String id;
-
-    @Column(name = "fid", nullable = false)
+    
+    
+   // @Column(name = "fid", nullable = false)
     private String fid;
 }
