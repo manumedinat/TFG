@@ -11,14 +11,20 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode
 @Entity
+@Table (name= "episodes")
 public class Episode implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "ID_Episode", nullable = false)
+    @Column(name="eid")
     private String eid;
+    @OneToOne
+    @JoinColumn(name="eid")
+    private Appears appears;
 
-    @Column(name = "e_code", nullable = false)
+    @Column(name = "ecode", nullable = false)
     private String ecode;
+
+    
 }
