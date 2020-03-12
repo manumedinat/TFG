@@ -20,7 +20,7 @@ public class CharacterService {
     }
 
     @Transactional
-    public Character createCharacter(String id, String fname, String lname, String type) {
+    public Character createCharacter(final String id, final String fname, final String lname, final String type) {
         final Character character = new Character();
         character.setId(id);
         character.setFname(fname);
@@ -30,8 +30,10 @@ public class CharacterService {
     }
 
     @Transactional(readOnly = true)
-    public Iterable<Character> getAllCharacters(String id, String fname, String lname, String type) {
+    public Iterable<Character> getAllCharacters(final String id, final String fname, final String lname,
+            final String type) {
       return this.characterRepository.findCharacterByIdOrFname(id, fname);
+
     }
 
    
