@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.example.demo.dao.entity.*;
 import com.example.demo.dao.entity.Character;
@@ -14,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AppearsService {
 
     private final AppearsRepository appearsRepository ;
+    private final EpisodeRepository episodeRepository ;
 
-    public AppearsService(final AppearsRepository appearsRepository) {
-        this.appearsRepository = appearsRepository ;
+    public AppearsService(final AppearsRepository appearsRepository, final EpisodeRepository episodeRepository) {
+        this.appearsRepository = appearsRepository;
+        this.episodeRepository = episodeRepository;
     }
 
     @Transactional
@@ -31,7 +34,11 @@ public class AppearsService {
     public Iterable<Appears> getAllAppears(final String charid) {
         return this.appearsRepository.findByCharid(charid);
     }
-
+    
+    @Transactional(readOnly = true)
+    public List <Episode> getEpisodesFromAppears(final String eid, final String ecode){
+        return episodeRepository.findEpisodeByeidOrEcode(eid, ecode);
+    }
    
 }
 
