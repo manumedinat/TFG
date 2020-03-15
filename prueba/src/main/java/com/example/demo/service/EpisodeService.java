@@ -27,7 +27,10 @@ public class EpisodeService {
 
     @Transactional(readOnly = true)
     public Iterable<Episode> getAllEpisodes(String eid, String ecode) {
-        return this.episodeRepository.findEpisodeByeidOrEcode(eid, ecode);
+        if(episodeRepository.findEpisodeByEidOrEcode(eid, ecode).isEmpty()){
+            return this.episodeRepository.findAll();
+        }
+        return this.episodeRepository.findEpisodeByEidOrEcode(eid, ecode);
     }
    
 }
