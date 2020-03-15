@@ -19,16 +19,14 @@ public class Character implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-
+    //foreign key de friends
     @Id
-    //@Column(name = "ch_id", nullable = false)
     private String id;
-
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name="id")
     private Friends friends;
-
+    
     @Column(name = "fname", nullable = false)
     private String fname;
 
@@ -36,7 +34,10 @@ public class Character implements Serializable {
     private String lname;
 
     @Column(name = "type", nullable = false)
-    private String type;
+    private String personType;
+    
 
-
+    /*@OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "type", referencedColumnName = "type")
+    private CharacterType characterType;*/
 }
