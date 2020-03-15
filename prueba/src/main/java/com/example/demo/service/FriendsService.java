@@ -27,6 +27,9 @@ public class FriendsService {
 
     @Transactional(readOnly = true)
     public Iterable<Friends> getAllFriends(String id, String fid) {
+        if(friendsRepository.findFriendsByIdOrFid(id, fid).isEmpty()){
+            return this.friendsRepository.findAll();
+        }
         return this.friendsRepository.findFriendsByIdOrFid(id, fid);
     }
    
