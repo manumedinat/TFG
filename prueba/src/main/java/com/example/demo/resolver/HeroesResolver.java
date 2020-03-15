@@ -19,28 +19,24 @@ import org.springframework.stereotype.Component;
 public class HeroesResolver implements GraphQLResolver<Heroes> {
     private final CharacterRepository characterRepository;
     private final EpisodeRepository episodeRepository;
+    private final HeroesRepository heroesRepository;
 
 
-    public HeroesResolver(final CharacterRepository characterRepository, EpisodeRepository episodeRepository) {
+    public HeroesResolver(final HeroesRepository heroesRepository,final CharacterRepository characterRepository, EpisodeRepository episodeRepository) {
         this.characterRepository = characterRepository;
         this.episodeRepository= episodeRepository;
+        this.heroesRepository= heroesRepository;
     }
 
     public List<Episode> getEpisode(Heroes heroes, final String eid, final String ecode) {
-       // return episodeRepository.findEpisodeByeidOrEcode(eid, ecode);
-            if(heroes.getEpisodeid() != null) {
-            return episodeRepository.findAll().stream().filter((episode-> heroes.getEpisodeid().equals(eid))).collect(Collectors.toList());
-            }else{
-                return episodeRepository.findAll();
+        return episodeRepository.findEpisodeByEidOrEcode(heroes.getEpisodeid(), ecode);
+    }
+        public Iterable<Character> getHero(Heroes heroes, final String id, final String fname) {
+            if(characterRepository.findCharactersByIdOrFname(id, fname).isEmpty()){
+                return characterRepository.findCharactersByIdOrFname(heroes.getCharid(), fname);
             }
-        }
-        public List<Character> getHero(Heroes heroes, final String id, final String fname) {
-            // return episodeRepository.findEpisodeByeidOrEcode(eid, ecode);
-                 if(heroes.getEpisodeid() != null) {
-                 return characterRepository.findAll().stream().filter((character-> heroes.getCharid().equals(id))).collect(Collectors.toList());
-                 }else{
-                     return characterRepository.findAll();
-                 }
-             }    
+            return characterRepository.findCharactersByIdOrFname(id, fname);
+           //return characterRepository.findAll().stream().filter(character-> id.equals(heroes.getCharid())).collect(Collectors.toSet());
+        }    
 
 }
