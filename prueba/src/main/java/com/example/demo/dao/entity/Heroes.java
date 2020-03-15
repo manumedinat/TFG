@@ -18,7 +18,16 @@ public class Heroes implements Serializable {
     @Id
    // @Column(name = "ID_Heroes", nullable = false)
     private String episodeid;
-
-   // @Column(name = "char_id", nullable = false)
+    
+    
+    /*@Column(name = "charid", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="characters_id")
+    private Character character;
+    */
+    @Column(name = "characters_id")
     private String charid;
+    
+    
+    
 }
