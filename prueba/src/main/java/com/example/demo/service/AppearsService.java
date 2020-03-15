@@ -32,13 +32,16 @@ public class AppearsService {
 
     @Transactional(readOnly = true)
     public Iterable<Appears> getAllAppears(final String charid) {
+        if(appearsRepository.findByCharid(charid).isEmpty()){
+            return this.appearsRepository.findAll();
+        }
         return this.appearsRepository.findByCharid(charid);
     }
     
-    @Transactional(readOnly = true)
+   /* @Transactional(readOnly = true)
     public List <Episode> getEpisodesFromAppears(final String eid, final String ecode){
         return episodeRepository.findEpisodeByeidOrEcode(eid, ecode);
-    }
+    }*/
    
 }
 
