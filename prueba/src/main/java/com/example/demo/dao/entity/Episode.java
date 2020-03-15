@@ -19,10 +19,10 @@ public class Episode implements Serializable {
     @Id
     @Column(name="eid")
     private String eid;
-    @OneToOne
+   /* @OneToOne
     @JoinColumn(name="eid")
     private Appears appears;
-
+    */
     @Column(name = "ecode", nullable = false)
     private String ecode;
 
