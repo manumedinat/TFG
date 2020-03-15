@@ -8,8 +8,7 @@ import javax.persistence.*;
 import com.example.demo.dao.repository.EpisodeRepository;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
+
 
 @Data
 @EqualsAndHashCode
@@ -21,22 +20,24 @@ public class Appears implements Serializable {
 
 
     @Id
+    @Column(name="ID",nullable = false)
+    @GeneratedValue
+    private int _id;
+
+    @Column(unique = false)
     private String charid;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name="charid")
-    private Character character;
     
+/*   @OneToOne
+    @MapsId
+    @JoinColumn(name="charid", unique = false)
+    private Character character;
+    */
     @Column(name = "episodeid", nullable = false)
     private String episodeid;
 
-    @OneToOne (mappedBy = "appears", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    /*@OneToOne (mappedBy = "appears", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
     private Episode episode;
-    
-    
-    /*public Episode getEpisode (String eid, String ecode){
-        return episode;
-    }*/
+    */
 
 }
