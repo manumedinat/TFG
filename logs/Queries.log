@@ -1,0 +1,175 @@
+1) Obtener lista de caracteres dado el id, nombre y apellido
+GraphQL Query:
+{
+  listCharacter{
+    id
+    fname
+    lname
+  }
+}
+*************************************************************************************************
+SQL Query:
+select character0_.id as id1_1_, character0_.fname as fname2_1_, character0_.lname as lname3_1_, character0_.type as type4_1_ from characters character0_ where character0_.id is null or character0_.fname is null
+select character0_.id as id1_1_, character0_.fname as fname2_1_, character0_.lname as lname3_1_, character0_.type as type4_1_ from characters character0_
+
+****************************************************************************************************
+****************************************************************************************************
+2) Obtener lista de caracteres dado el id, nombre y apellido, mostrando el episodio en el que aparecen(appearsIn)
+GraphQL Query:
+{
+  listCharacter{
+    id
+    fname
+    lname
+    appearsIn{
+      episodeid
+      charid
+    }
+  }
+}
+****************************************************************************************************
+SQL Query:
+select character0_.id as id1_1_, character0_.fname as fname2_1_, character0_.lname as lname3_1_, character0_.type as type4_1_ from characters character0_ where character0_.id is null or character0_.fname is null
+select character0_.id as id1_1_, character0_.fname as fname2_1_, character0_.lname as lname3_1_, character0_.type as type4_1_ from characters character0_
+select appears0_.id as id1_0_, appears0_.charid as charid2_0_, appears0_.episodeid as episodei3_0_ from appears appears0_ where appears0_.charid=?
+select appears0_.id as id1_0_, appears0_.charid as charid2_0_, appears0_.episodeid as episodei3_0_ from appears appears0_ where appears0_.charid=?
+select appears0_.id as id1_0_, appears0_.charid as charid2_0_, appears0_.episodeid as episodei3_0_ from appears appears0_ where appears0_.charid=?
+select appears0_.id as id1_0_, appears0_.charid as charid2_0_, appears0_.episodeid as episodei3_0_ from appears appears0_ where appears0_.charid=?
+select appears0_.id as id1_0_, appears0_.charid as charid2_0_, appears0_.episodeid as episodei3_0_ from appears appears0_ where appears0_.charid=?
+****************************************************************************************************
+****************************************************************************************************
+3) Obtener lista de caracteres dado el id, nombre y apellido, mostrando el episodio en el que aparecen(appearsIn, filtrando por character=1000(Luke Skywalker)
+
+****ESTÁ MAL, DEBERIA DEVOLVER SOLO A LUKE Y DEVUELVE A TODOS*******
+
+GraphQL Query:
+{
+  listCharacter{
+    id
+    fname
+    lname
+    appearsIn(charid:"1000"){
+      episodeid
+      charid
+    }
+  }
+}
+***************************************************************************************************
+SQL Query:
+select character0_.id as id1_1_, character0_.fname as fname2_1_, character0_.lname as lname3_1_, character0_.type as type4_1_ from characters character0_ where character0_.id is null or character0_.fname is null
+select character0_.id as id1_1_, character0_.fname as fname2_1_, character0_.lname as lname3_1_, character0_.type as type4_1_ from characters character0_
+select appears0_.id as id1_0_, appears0_.charid as charid2_0_, appears0_.episodeid as episodei3_0_ from appears appears0_ where appears0_.charid=?
+select appears0_.id as id1_0_, appears0_.charid as charid2_0_, appears0_.episodeid as episodei3_0_ from appears appears0_ where appears0_.charid=?
+select appears0_.id as id1_0_, appears0_.charid as charid2_0_, appears0_.episodeid as episodei3_0_ from appears appears0_ where appears0_.charid=?
+select appears0_.id as id1_0_, appears0_.charid as charid2_0_, appears0_.episodeid as episodei3_0_ from appears appears0_ where appears0_.charid=?
+select appears0_.id as id1_0_, appears0_.charid as charid2_0_, appears0_.episodeid as episodei3_0_ from appears appears0_ where appears0_.charid=?
+***************************************************************************************************
+***************************************************************************************************
+4)Obtener lista de Heroes con su identificador y su código (nombre pelicula)
+GraphQL Query:
+{
+  listHeroes{
+    charid
+    episodeid
+  }
+}
+
+***************************************************************************************************
+SQL Query:
+select heroes0_.episodeid as episodei1_5_, heroes0_.characters_id as characte2_5_ from heroes heroes0_ where heroes0_.episodeid is null or heroes0_.characters_id is null
+select heroes0_.episodeid as episodei1_5_, heroes0_.characters_id as characte2_5_ from heroes heroes0_
+***************************************************************************************************
+***************************************************************************************************
+5)Obtener lista de Heroes con su identificador y su código (nombre pelicula), identifcando en que episodios salen los heroes
+
+GraphQL	Query:
+{
+  listHeroes{
+    charid
+    episodeid
+    episode{
+      eid
+      ecode
+    }
+  }
+}
+***********************************************************************************************************
+SQL Query:
+select heroes0_.episodeid as episodei1_5_, heroes0_.characters_id as characte2_5_ from heroes heroes0_ where heroes0_.episodeid is null or heroes0_.characters_id is null
+select heroes0_.episodeid as episodei1_5_, heroes0_.characters_id as characte2_5_ from heroes heroes0_
+select episode0_.eid as eid1_3_, episode0_.ecode as ecode2_3_ from episodes episode0_ where episode0_.eid=? or episode0_.ecode is null
+select episode0_.eid as eid1_3_, episode0_.ecode as ecode2_3_ from episodes episode0_ where episode0_.eid=? or episode0_.ecode is null
+select episode0_.eid as eid1_3_, episode0_.ecode as ecode2_3_ from episodes episode0_ where episode0_.eid=? or episode0_.ecode is null
+***********************************************************************************************************
+***********************************************************************************************************
+6)Obtener lista de Heroes con su identificador y su código (nombre pelicula), identificando en que 
+episodios salen los heroes (se usa el filtro para que saque todos los heroes del episodio 4)--> SALE MAL, devuelve todos y no filtra
+
+GraphQL Query:
+{
+  listHeroes{
+    charid
+    episodeid
+    episode(eid:"4"){
+      eid
+      ecode
+    }
+  }
+}
+
+******************************************************************************************************
+SQL Query:
+select heroes0_.episodeid as episodei1_5_, heroes0_.characters_id as characte2_5_ from heroes heroes0_ where heroes0_.episodeid is null or heroes0_.characters_id is null
+select heroes0_.episodeid as episodei1_5_, heroes0_.characters_id as characte2_5_ from heroes heroes0_
+select episode0_.eid as eid1_3_, episode0_.ecode as ecode2_3_ from episodes episode0_ where episode0_.eid=? or episode0_.ecode is null
+select episode0_.eid as eid1_3_, episode0_.ecode as ecode2_3_ from episodes episode0_ where episode0_.eid=? or episode0_.ecode is null
+select episode0_.eid as eid1_3_, episode0_.ecode as ecode2_3_ from episodes episode0_ where episode0_.eid=? or episode0_.ecode is null
+******************************************************************************************************
+******************************************************************************************************
+7) Obtener todos los heroes con su id y el episodio en el que aparecen, 
+y de cada heroe se obtiene su nombre y su tipo (H->Humano,D-> Droide)
+
+GraphQL Query:
+{
+  listHeroes{
+    charid
+    episodeid
+    hero{
+      fname
+      lname
+      personType
+    }
+  }
+}
+*****************************************************************************************************
+SQL Query:
+select heroes0_.episodeid as episodei1_5_, heroes0_.characters_id as characte2_5_ from heroes heroes0_ where heroes0_.episodeid is null or heroes0_.characters_id is null
+select heroes0_.episodeid as episodei1_5_, heroes0_.characters_id as characte2_5_ from heroes heroes0_
+select character0_.id as id1_1_, character0_.fname as fname2_1_, character0_.lname as lname3_1_, character0_.type as type4_1_ from characters character0_ where character0_.id is null or character0_.fname is null
+select character0_.id as id1_1_, character0_.fname as fname2_1_, character0_.lname as lname3_1_, character0_.type as type4_1_ from characters character0_ where character0_.id=? or character0_.fname is null
+*****************************************************************************************************
+*****************************************************************************************************
+8) Obten los heroes con su id y episodio que aparecen en episodio 4(filtro de listHeroes), 
+y de cada heroe devuelve su nombre y su tipo
+
+GraphQL Query:
+{
+  listHeroes(episode:"4"){
+    charid
+    episodeid
+    hero{
+      fname
+      lname
+      personType
+    }
+  }
+}
+
+*****************************************************************************************************
+SQL Query:
+select heroes0_.episodeid as episodei1_5_, heroes0_.characters_id as characte2_5_ from heroes heroes0_ where heroes0_.episodeid=? or heroes0_.characters_id is null
+select heroes0_.episodeid as episodei1_5_, heroes0_.characters_id as characte2_5_ from heroes heroes0_ where heroes0_.episodeid=? or heroes0_.characters_id is null
+select character0_.id as id1_1_, character0_.fname as fname2_1_, character0_.lname as lname3_1_, character0_.type as type4_1_ from characters character0_ where character0_.id is null or character0_.fname is null
+select character0_.id as id1_1_, character0_.fname as fname2_1_, character0_.lname as lname3_1_, character0_.type as type4_1_ from characters character0_ where character0_.id=? or character0_.fname is null
+******************************************************************************************************
+******************************************************************************************************
