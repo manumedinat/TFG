@@ -25,11 +25,11 @@ const pathDemo='../prueba2/src/main/java/com/example/demo/';
 const pathServiceDir= pathDemo + 'service';
 const pathQueryDir= pathDemo + 'query';
 const pathMutationDir= pathDemo + 'mutation';
+const pathResolverDir= pathDemo + 'resolver';
 const pathDaoDir= pathDemo + 'dao';
 const pathDaoEntityDir= pathDaoDir + '/entity';
 const pathDaoRepositoryDir= pathDaoDir + '/repository';
 const pathGQLDir= '../prueba2/src/main/resources/graphql';
-
 /*-------------VARIABLES FICHEROS DIRECTORIO SERVICE--------------------*/
 var arrayEntities= ["Appears", "Character", "CharacterType", "Episode", "Friends", "Heroes"]
 const pathAppearsServiceFile=pathServiceDir + "/" + arrayEntities[0] + "Service.java";
@@ -41,15 +41,27 @@ const pathHeroesServiceFile=pathServiceDir + "/" + arrayEntities[5] + "Service.j
 
 var serviceFiles = [pathAppearsServiceFile, pathCharacterServiceFile, pathCharacterTypeServiceFile,
 pathEpisodeServiceFile, pathFriendsServiceFile, pathHeroesServiceFile];
-
 /*-------------VARIABLES FICHEROS DIRECTORIO QUERY--------------------*/
 const pathQueryFile= pathQueryDir + "/Query.java";
-
 /*-------------VARIABLES FICHEROS DIRECTORIO MUTATION--------------------*/
 const pathMutationFile= pathMutationDir + "/Mutation.java";
+/*-------------VARIABLES FICHEROS DIRECTORIO RESOLVER--------------------*/
+const pathAppearsResolverFile= pathResolverDir + "/"+ arrayEntities[0] + "Resolver.java";
+const pathCharacterResolverFile= pathResolverDir + "/"+ arrayEntities[1] + "Resolver.java";
+const pathHeroesResolverFile= pathResolverDir + "/"+ arrayEntities[5] + "Resolver.java";
 
+var resolverFiles = [pathAppearsResolverFile, pathCharacterResolverFile,  pathHeroesResolverFile];
+var resolverEnt= [arrayEntities[0],arrayEntities[1], arrayEntities[5]];
 /*-------------VARIABLES FICHEROS DIRECTORIO ENTITY--------------------*/
-const pathEntityFile= "../prueba2/src/main/java/com/example/demo/dao/entity/Vehicle.java";
+const pathAppearsEntityFile= pathDaoEntityDir + "/"+ arrayEntities[0] + ".java";
+const pathCharacterEntityFile= pathDaoEntityDir + "/"+ arrayEntities[1] + ".java";
+const pathCharacterTypeEntityFile= pathDaoEntityDir + "/"+ arrayEntities[2] + ".java";
+const pathEpisodeEntityFile= pathDaoEntityDir + "/"+ arrayEntities[3] + ".java";
+const pathFriendsEntityFile= pathDaoEntityDir + "/"+ arrayEntities[4] + ".java";
+const pathHeroesEntityFile= pathDaoEntityDir + "/"+ arrayEntities[5] + ".java";
+
+var entityFiles = [pathAppearsEntityFile, pathCharacterEntityFile, pathCharacterTypeEntityFile,
+    pathEpisodeEntityFile, pathFriendsEntityFile, pathHeroesEntityFile];
 
 /*-------------VARIABLES FICHEROS DIRECTORIO REPOSITORY--------------------*/
 const pathAppearsRepositoryFile= pathDaoRepositoryDir +"/"+  arrayEntities[0] +  "Repository.java";
@@ -60,8 +72,10 @@ const pathFriendsRepositoryFile= pathDaoRepositoryDir +"/"+  arrayEntities[4] + 
 const pathHeroesRepositoryFile= pathDaoRepositoryDir +"/"+  arrayEntities[5] +  "Repository.java";
 var repositoryFiles = [pathAppearsRepositoryFile, pathCharacterRepositoryFile, pathCharacterTypeRepositoryFile,
     pathEpisodeRepositoryFile, pathFriendsRepositoryFile, pathHeroesRepositoryFile];
+   
 /*-------------VARIABLES FICHERO SCHEMA GQL--------------------*/
-const pathGQLFile= '../prueba2/src/main/resources/graphql/vehicleql.graphqls'
+const pathGQLFile= '../prueba2/src/main/resources/graphql/starwarsql.graphqls';
+const pathAppPtyFile= '../prueba2/src/main/resources/application.properties';
 
 //---------CONSTRUCCION APP---------------------------*/
 
@@ -266,7 +280,7 @@ public class Query implements GraphQLQueryResolver{
 
 createFile(pathQueryFile,textoQuery);
 /****************************************************************************** */
-/*3. Crer directorio y fichero mutation*/
+/*3. Crear directorio y fichero mutation*/
 createDir(pathMutationDir); //directorio
 const textoMutation=
 `package com.example.demo.mutation;
@@ -327,14 +341,12 @@ createFile(pathMutationFile,textoMutation); //fichero
 /*4. Crear directorio dao*/
 createDir(pathDaoDir); //directorio
 
-/*4.1 Crear directorio entity y fichero entity
+/*4.1 Crear directorio entity y fichero entity*/
 createDir(pathDaoEntityDir);
-const textoEntity=
-`package com.example.demo.dao.entity;
-
+const textoEntityInicio=`
+package com.example.demo.dao.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -342,39 +354,76 @@ import java.time.LocalDate;
 @Data
 @EqualsAndHashCode
 @Entity
-public class Vehicle implements Serializable {
+public class `;
+var textoEntity;
 
-    private static final long serialVersionUID = 1L;
+    for (var i=0;i<arrayEntities.length;i++){
+    textoEntity=textoEntityInicio;
+    textoEntity+= arrayEntities[i] + ` implements Serializable{\n`;
+    textoEntity+= `private static final long serialVersionUID = 1L;\n`;
+    textoEntity+= `@id\n`;
+    if(i==0){
+        textoEntity+= `@Column(name="ID",nullable = false)\n`;
+        textoEntity+= `@GeneratedValue\n`;
+        textoEntity+= `private int _id;\n`;
+        textoEntity+=
+       `@Column(unique = false)
+        private String charid;
+   
+        @Column(name = "episodeid", nullable = false)
+        private String episodeid;
+    }` 
+    }else if(i==1){
+        textoEntity+= `private String id;\n`;
+        textoEntity+= `@OneToOne(fetch = FetchType.LAZY)\n`;
+        textoEntity+=
+      `@MapsId
+       @JoinColumn(name="id")
+       private Friends friends;
+       
+       @Column(name = "fname", nullable = false)
+       private String fname;
+   
+       @Column(name = "lname")
+       private String lname;
+   
+       @Column(name = "type", nullable = false)
+       private String personType;
+    }`
 
-    @Id
-    @Column(name = "ID", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
-
-    @Column(name = "type", nullable = false)
-    private String type;
-
-    @Column(name = "model_code", nullable = false)
-    private String modelCode;
-
-    @Column(name = "brand_name")
-    private String brandName;
-
-    @Column(name = "launch_date")
-    private LocalDate launchDate;
-
-    @Column(name="seats", nullable=false)
-    private int seats;
-
-    private transient  String formattedDate;
-
-    // Getter and setter
-    public String getFormattedDate() {
-        return getLaunchDate().toString();
+    }else if(i==2){
+        textoEntity+= `@Column(name="type")\n`;
+        textoEntity+= `private String id;\n`;
+        textoEntity+=
+      `@Column(name = "name", nullable = false)
+       private String name;  
+    }`
+    }else if(i==3){
+        textoEntity+= `@Column(name="eid")\n`;
+        textoEntity+= `private String eid;\n`;
+        textoEntity+=
+      `@Column(name = "ecode", nullable = false)
+       private String ecode;  
+    }`
+    }else if(i==4){
+        textoEntity+= `@Column(name= "ID",unique = false)\n`;
+        textoEntity+= `private String id;\n`;
+        textoEntity+=
+      `@Column(name = "FR_ID")
+       private String fid; 
+    }`
+    }else{
+        textoEntity+= `private String episodeid;\n`;
+        textoEntity+= `@Column(name = "characters_id")\n`;
+        textoEntity+= `private String charid;
+    }`
     }
-}`;
+    for (var j=0;j<entityFiles.length;j++){
+        createFile(entityFiles[i],textoEntity);
+    }
 
-createFile(pathEntityFile,textoEntity); //fichero
+}
+
 
 /*4.2 Crear directorio y fichero repository*/
 createDir(pathDaoRepositoryDir); //directorio
@@ -423,36 +472,145 @@ for (var i=0; i<arrayEntities.length;i++){
   }
 
 
-//createFile(pathRepositoryFile,textoRepository); //fichero
 
-
-/*5.Crear arcihivo graphqls y su directorio*
+/*5.Crear archivo graphqls y su directorio*/
 createDir(pathGQLDir);
 const textogql=
-`type Vehicle {
-	id: ID!,
-	type: String,
-	modelCode: String,
-	brandName: String,
-	seats: Int,
-	launchDate: String
+`type Friends{
+	id: String
+	fid: String
+}
+
+type Appears {
+	_id: ID!
+	charid: String
+	episodeid: String
+	episode(eid: String, ecode: String): [Episode]
+}
+type Heroes{
+	episodeid: String
+	charid: String
+	episode(eid:String , ecode:String): [Episode]
+	hero(id:String, fname:String): [Character]
+}
+
+type Character{
+	id: String
+	fname: String
+	lname: String
+	personType:String
+	appearsIn(charid:String): [Appears]
+	friendship(id:String, fid:String) : [Friends]
+	type(id: String, name: String): [CharacterType] 
+}
+type Episode{
+	eid: String
+	ecode: String
+}
+
+type CharacterType{
+	id: String
+	name: String
 }
 
 type Query {
-	vehicles(count: Int):[Vehicle]
-	vehicle(id: ID):Vehicle
+	listFriends(id:String, fid:String): [Friends]
+	listAppears(charid:String):[Appears]
+	listHeroes(episode:String, charid:String): [Heroes]
+	listCharacter(id: String, fname:String, lname:String, personType:String) : [Character]
+	listEpisode(eid:String, ecode:String): [Episode]
+	listCharacterType(id: String, name: String): [CharacterType]
 }
 
 type Mutation {
-	createVehicle(type: String!, modelCode: String!, brandName: String, seats: Int, launchDate: String):Vehicle
-	deleteVehicle(id:ID!): Boolean
+	createFriends(id:String, fid:String): Friends
+	createAppears(charid:Long, episodeid:String): Appears
+	createHeroes(episode:String, charid:String): Heroes
+	createCharacter(id:Long, fname:String, lname:String, personType:String): Character
+	createEpisode(eid:String, ecode:String): Episode
 }`;
 
 createFile(pathGQLFile,textogql);
 
-/*6. Añadir dependencias graphql y lombok a pom.xml */
-/*
-var str =`\n
+/*6. Crear directorio resolver y sus ficheros correspondientes*/
+createDir(pathResolverDir);
+
+var textoResolverInicio=
+`package com.example.demo.resolver;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+import com.coxautodev.graphql.tools.GraphQLResolver;
+import com.example.demo.dao.*;
+import com.example.demo.dao.entity.*;
+import com.example.demo.dao.entity.Character;
+import com.example.demo.dao.repository.*;
+
+import org.springframework.stereotype.Component;
+@Component\n`
+var textoResolver;
+for (var i=0; i< resolverEnt.length;i++){
+    textoResolver=textoResolverInicio;
+    textoResolver+= `public class ` + resolverEnt[i] + "Resolver implements GraphQLResolver <" + resolverEnt[i] + `>{\n`;
+    if(i==0){
+        textoResolver+= `private final EpisodeRepository episodeRepository;\n`
+        textoResolver+= `public AppearsResolver (final EpisodeRepository episodeRepository){\n`
+        textoResolver+= 
+        `this.episodeRepository = episodeRepository;
+    }
+    public Iterable<Episode> getEpisode(Appears appears,  String eid,  String ecode) {
+        return episodeRepository.findEpisodeByEidOrEcode(appears.getEpisodeid(), ecode);
+     }
+}`;
+    }else if (i==1){
+        textoResolver+=`private final AppearsRepository appearsRepository;\n`;
+        textoResolver+=`private final FriendsRepository friendsRepository;\n`;
+        textoResolver+=`private final CharacterTypeRepository characterTypeRepository;\n`;
+        textoResolver+=`public CharacterResolver (final AppearsRepository appearsRepository, final FriendsRepository friendsRepository, final CharacterTypeRepository characterTypeRepository){\n`;
+        textoResolver+=
+        `this.appearsRepository = appearsRepository;
+        this.friendsRepository = friendsRepository;
+        this.characterTypeRepository= characterTypeRepository;
+    }
+
+    public List<Appears> getAppearsIn(final Character character, final String charid) {
+            return appearsRepository.findAppearsInByCharid(character.getId()); 
+        }
+    public List<Friends> getFriendship(final Character character, final String id, final String fid) {
+        return friendsRepository.findAllByIdOrFid(character.getId(), character.getId());
+    }
+    public List<CharacterType> getType (final Character character, final String id, final String name){
+        return characterTypeRepository.findAllCharacterTypeByIdOrName(character.getId(),name);
+    }   
+}`;
+    }else{
+        textoResolver+=`private final CharacterRepository characterRepository;\n`;
+        textoResolver+=`private final EpisodeRepository episodeRepository;\n`;
+        textoResolver+=`public HeroesResolver (final CharacterRepository characterRepository, final EpisodeRepository episodeRepository){\n`;
+        textoResolver+=
+        `this.characterRepository = characterRepository;
+        this.episodeRepository= episodeRepository;
+        this.heroesRepository= heroesRepository;
+    }
+
+    public List<Episode> getEpisode(Heroes heroes, final String eid, final String ecode) {
+        return episodeRepository.findEpisodeByEidOrEcode(heroes.getEpisodeid(), ecode);
+    }
+    public Iterable<Character> getHero(Heroes heroes, final String id, final String fname) {
+        return characterRepository.findCharactersByIdOrFname(heroes.getCharid(), fname);
+    }    
+}`;
+   }
+      for (var j=0;j<resolverFiles.length;j++){
+        createFile(resolverFiles[i],textoResolver);
+    }
+}
+/*7. Añadir dependencias graphql y lombok a pom.xml */
+
+var str =`
  <dependency>
     <groupId>com.graphql-java</groupId>
     <artifactId>graphql-spring-boot-starter</artifactId>
@@ -467,9 +625,15 @@ var str =`\n
     <groupId>com.graphql-java</groupId>
     <artifactId>graphiql-spring-boot-starter</artifactId>
     <version>5.0.2</version>
- </dependency>`
-var position = 1024;
-var file_path = '../prueba/pom.xml';
+ </dependency>
+ <dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.8</version>
+    <optional>true</optional>
+</dependency>\n`
+var position = 1018;
+var file_path = '../prueba2/pom.xml';
     
 fs.readFile(file_path, function read(err, data) {
         if (err) {
@@ -482,5 +646,20 @@ fs.readFile(file_path, function read(err, data) {
     fs.writeSync(file, bufferedText, 0, bufferedText.length, position);
     fs.close(file);
  });
-*/
+
+ /*9. Añadir especificaciones a application.properties*/
+
+ const textoAppPty= `
+ spring.datasource.url=jdbc:h2:mem:exampledb
+ spring.datasource.username=example
+ spring.datasource.password=
+ spring.jpa.hibernate.ddl-auto=update
+ spring.jpa.show-sql=true
+ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
+ 
+ # Enable H2 web console at http://localhost:8080/h2-console
+ spring.h2.console.enabled=true`;
+
+ createFile(pathAppPtyFile,textoAppPty);
+
 
