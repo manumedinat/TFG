@@ -1,4 +1,7 @@
 /* Mecanismo para crear ficheros y directorios*/
+//import {Transformer, mappingDoc} from './transformer';
+//import {jsonFile, getTriplesId} from './funciones_ttl';
+const funciones= require('../R2RML/funciones_ttl');
 const fs=require('fs');
 const createDir=(dirPath)=>{
     fs.mkdirSync(dirPath, {recursive:true}, (error) =>{
@@ -20,6 +23,10 @@ const createFile=(filePath,fileContent)=>{
     });
 }
 
+/*Referencia a fichero de mappeo*/
+var fileMapping= fs.readFileSync("./mappings.r2rml.json"); //leer fichero en formato utf8
+var jsonFile= JSON.parse(fileMapping); //parsear fichero 
+let mappingDoc=jsonFile;
 /* ------------VARIABLES DIRECTORIOS-----------------*/
 const pathDemo='../prueba2/src/main/java/com/example/demo/';
 const pathServiceDir= pathDemo + 'service';
@@ -79,7 +86,7 @@ const pathAppPtyFile= '../prueba2/src/main/resources/application.properties';
 
 //---------CONSTRUCCION APP---------------------------*/
 
-/*1. Crear directorio service y ficheros pertenecientes al directorio service*/
+/*1. Crear directorio service y ficheros pertenecientes al directorio service*
 createDir(pathServiceDir); //directorio
 
 var textoServiceInicio= 
@@ -225,8 +232,64 @@ for (var i=0; i<arrayEntities.length;i++){
 
 /*************************************************************************** */
 
+
 /*2. Crear directorio query y fichero query*/
 createDir(pathQueryDir); //directorio
+
+
+/** QUERY ROOT IMPLEMENTATION */
+function generateQueryRoot(mappingDoc){
+    let queryInit="";
+    queryInit+="package com.example.demo.query\n";
+    queryInit+="import com.coxautodev.graphql.tools.GraphQLQueryResolver;\n";
+    queryInit+="import com.example.demo.dao.entity.*;\n";
+    queryInit+="import com.example.demo.dao.entity.Character;\n";
+    queryInit+="import com.example.demo.service.*;\n";
+    queryInit+="import org.springframework.beans.factory.annotation.Autowired;\n";
+    queryInit+="import org.springframework.stereotype.Component\n";
+    queryInit+="@Component\n";
+    queryInit+="\tpublic class Query implements GraphQLQueryResolver{\n";
+    let triplesMaps= funciones.getTriplesId();
+
+        /*recorrer todas las triplesMaps*/
+        for (var j=0; j< triplesMaps.length;j++){
+            let subjMap= funciones.getIdsFromTripleMap(triplesMaps[j]).subjectMapId;
+            //console.log('hola entro' +subjMap);
+            let typeClass= funciones.getClassNameFromSubjMap(subjMap);
+            //console.log(typeClass);
+            var typeClassLow= typeClass;
+            typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
+            queryInit+="\t@Autowired\n";
+            queryInit+="\tprivate " + typeClass + "Service " + typeClassLow + "Service;\n";
+            queryInit+="\tpublic Iterable <" + typeClass+ "> list" + typeClass + "(";
+            let poms= funciones.getIdsFromTripleMap(triplesMaps[j]).predicateObjectMapIds;
+            var arrayData=[];
+            /* recorrer todos los objectMaps*/
+                for (var k=0; k<poms.length;k++){
+                     let objMap= funciones.getIdsFromPredObjMap(poms[k]).objectMapId;
+                     let predicVal= funciones.getIdsFromPredObjMap(poms[k]).predicateId;
+                     var dataType= funciones.getDataTypeFromObjMap(objMap);
+                     //let attribute= funciones.getAttributeFromPredMap(predicVal);
+                     arrayData.push(dataType);
+                       
+            }
+            if(poms.length<=2){
+            queryInit+= "String " + arrayData[1] + ", String " + arrayData[0] + "){\n";
+            queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + " (" + arrayData[1] +"," + arrayData[0] + ");\n"
+            queryInit+= "\t}\n";
+            }else{
+            queryInit+= "String " + arrayData[3] + ", String " + arrayData[2] + "," + "String " +arrayData[1] + "){\n";
+            queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + " (" + arrayData[3] +"," + arrayData[2] + "," + arrayData[1] + ");\n"
+            queryInit+= "\t}\n";
+            }
+
+        }
+        queryInit+="}";
+        return queryInit;
+        
+}
+console.log(generateQueryRoot(mappingDoc));
+/*
 const textoQuery=
 `package com.example.demo.query;
 
@@ -280,7 +343,7 @@ public class Query implements GraphQLQueryResolver{
 
 createFile(pathQueryFile,textoQuery);
 /****************************************************************************** */
-/*3. Crear directorio y fichero mutation*/
+/*3. Crear directorio y fichero mutation*
 createDir(pathMutationDir); //directorio
 const textoMutation=
 `package com.example.demo.mutation;
@@ -338,10 +401,10 @@ public class Mutation implements GraphQLMutationResolver {
 
 createFile(pathMutationFile,textoMutation); //fichero
 
-/*4. Crear directorio dao*/
+/*4. Crear directorio dao*
 createDir(pathDaoDir); //directorio
 
-/*4.1 Crear directorio entity y fichero entity*/
+/*4.1 Crear directorio entity y fichero entity*
 createDir(pathDaoEntityDir);
 const textoEntityInicio=`
 package com.example.demo.dao.entity;
@@ -425,7 +488,7 @@ var textoEntity;
 }
 
 
-/*4.2 Crear directorio y fichero repository*/
+/*4.2 Crear directorio y fichero repository*
 createDir(pathDaoRepositoryDir); //directorio
 const textoRepositoryInicio=
 `package com.example.demo.dao.repository;
@@ -473,7 +536,7 @@ for (var i=0; i<arrayEntities.length;i++){
 
 
 
-/*5.Crear archivo graphqls y su directorio*/
+/*5.Crear archivo graphqls y su directorio*
 createDir(pathGQLDir);
 const textogql=
 `type Friends{
@@ -532,7 +595,7 @@ type Mutation {
 
 createFile(pathGQLFile,textogql);
 
-/*6. Crear directorio resolver y sus ficheros correspondientes*/
+/*6. Crear directorio resolver y sus ficheros correspondientes*
 createDir(pathResolverDir);
 
 var textoResolverInicio=
@@ -608,7 +671,7 @@ for (var i=0; i< resolverEnt.length;i++){
         createFile(resolverFiles[i],textoResolver);
     }
 }
-/*7. Añadir dependencias graphql y lombok a pom.xml */
+/*7. Añadir dependencias graphql y lombok a pom.xml *
 
 var str =`
  <dependency>
@@ -647,7 +710,7 @@ fs.readFile(file_path, function read(err, data) {
     fs.close(file);
  });
 
- /*9. Añadir especificaciones a application.properties*/
+ /*9. Añadir especificaciones a application.properties*
 
  const textoAppPty= `
  spring.datasource.url=jdbc:h2:mem:exampledb
@@ -661,5 +724,5 @@ fs.readFile(file_path, function read(err, data) {
  spring.h2.console.enabled=true`;
 
  createFile(pathAppPtyFile,textoAppPty);
-
+*/
 
