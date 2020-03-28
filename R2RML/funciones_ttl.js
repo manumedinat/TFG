@@ -50,7 +50,7 @@ exports.getIdsFromTripleMap= function(triplesId){
 }
 
 /*console.log(`\nTarea 2: Obtener Subject, PO Map y Logical Table a partir de tripleta`)
-const result1= this.getIdsFromTripleMap(result[4]);
+const result1= this.getIdsFromTripleMap(result[2]);
 const logicalTableId= result1.logicalTableId;
 const predicateObjectMapIds= result1.predicateObjectMapIds;
 const subjectMapId=result1.subjectMapId;
@@ -103,22 +103,25 @@ console.log(`Class Name = ${result3}`);
 
 /*5. Función para obtener datatype a partir de un objectMap */
 exports.getDataTypeFromObjMap=function(objMapId){
-    var dataType, aux2,elemento4;
+    var dataType, aux2,elemento4,arrayTemplates;
     for(var j in jsonFile["@graph"]){
         elemento4 = jsonFile["@graph"][j];
 
         if(elemento4['@id']=== objMapId){
-            if(!elemento4['rr:joinCondition']){
-            dataType= elemento4['rr:column'];
-            }else if (!elemento4['rr:column']){
-            aux2=elemento4['rr:joinCondition']['@id'];    
-            dataType= this.getIdsFromJoin(aux2).child;
-           }else if(!elemento4['rr:joinCondition'] && !elemento4['rr:column']) {
-             dataType= elemento4 ['rr:template'];
+            if(!elemento4['rr:joinCondition'] && !elemento4['rr:template']){
+                dataType= elemento4['rr:column'];
+
+            }else if (!elemento4['rr:column'] && !elemento4['rr:template']){
+                aux2=elemento4['rr:joinCondition']['@id'];    
+                dataType= getIdsFromJoin(aux2).child;
+
+           }else{
+                dataType= elemento4['rr:template'];
+                arrayTemplates= extractColumnsFromTemplate(dataType);
         }
     }
 }
-    return dataType;
+    return {dataType,arrayTemplates};
 }
 
 /*console.log(`\nTarea 5: Obtener Data Type`)
@@ -138,7 +141,8 @@ console.log(`Attribute = ${result5}`);
 */
 
 /*7. Función para obtener datos de joinCondition */
-exports.getIdsFromJoin=function(joinCondId){
+//exports.getIdsFromJoin=function(joinCondId){
+    function getIdsFromJoin(joinCondId){
     var child, parent,elemento6;
     for(var j in jsonFile["@graph"]){
         elemento6 = jsonFile["@graph"][j];
@@ -153,5 +157,36 @@ exports.getIdsFromJoin=function(joinCondId){
 
 //console.log(`\nTarea 7: Obtener ids`);
 
+/*8. Extraer columnas de template*/
+function extractColumnsFromTemplate(templatetest){
+    let extractedColumns=[];
+    let column1, column2;
+    let splitedTemplate = templatetest.split("{");
 
+    for(let i =1 ; i<splitedTemplate.length ; i++ ){
+        let key = splitedTemplate[i].split("}")[0];
+        extractedColumns.push(key);
+    }
+    //extractedColumns[0]= column1;
+    //extractedColumns[1]= column2;
+
+    return extractedColumns;
+    //return {column1,column2};
+}
+//console.log(extractColumnsFromTemplate("{fname} {lname}"))
+
+/*9: obtener ids que faltan para completar queryRoot*/
+exports.getTemplateFromSubjMap=function(subjMapId){
+    var templateId, aux2,elemento6;
+    for(var j in jsonFile["@graph"]){
+        elemento6 = jsonFile["@graph"][j];
+
+        if(elemento6['@id']=== subjMapId){
+            aux2= elemento6['rr:template'];
+            templateId= aux2.match(/{(.*)}/)[1];
+            templateId=templateId.split("}")[0];
+        }
+    }
+    return templateId;
+}
 
