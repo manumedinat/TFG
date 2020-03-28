@@ -1,6 +1,4 @@
 /* Mecanismo para crear ficheros y directorios*/
-//import {Transformer, mappingDoc} from './transformer';
-//import {jsonFile, getTriplesId} from './funciones_ttl';
 const funciones= require('../R2RML/funciones_ttl');
 const fs=require('fs');
 const createDir=(dirPath)=>{
@@ -26,7 +24,7 @@ const createFile=(filePath,fileContent)=>{
 /*Referencia a fichero de mappeo*/
 var fileMapping= fs.readFileSync("./mappings.r2rml.json"); //leer fichero en formato utf8
 var jsonFile= JSON.parse(fileMapping); //parsear fichero 
-let mappingDoc=jsonFile;
+var mappingDoc=jsonFile;
 /* ------------VARIABLES DIRECTORIOS-----------------*/
 const pathDemo='../prueba2/src/main/java/com/example/demo/';
 const pathServiceDir= pathDemo + 'service';
@@ -240,13 +238,13 @@ createDir(pathQueryDir); //directorio
 /** QUERY ROOT IMPLEMENTATION */
 function generateQueryRoot(mappingDoc){
     let queryInit="";
-    queryInit+="package com.example.demo.query\n";
+    queryInit+="package com.example.demo.query;\n";
     queryInit+="import com.coxautodev.graphql.tools.GraphQLQueryResolver;\n";
     queryInit+="import com.example.demo.dao.entity.*;\n";
     queryInit+="import com.example.demo.dao.entity.Character;\n";
     queryInit+="import com.example.demo.service.*;\n";
     queryInit+="import org.springframework.beans.factory.annotation.Autowired;\n";
-    queryInit+="import org.springframework.stereotype.Component\n";
+    queryInit+="import org.springframework.stereotype.Component;\n";
     queryInit+="@Component\n";
     queryInit+="\tpublic class Query implements GraphQLQueryResolver{\n";
     let triplesMaps= funciones.getTriplesId();
@@ -264,22 +262,49 @@ function generateQueryRoot(mappingDoc){
             queryInit+="\tpublic Iterable <" + typeClass+ "> list" + typeClass + "(";
             let poms= funciones.getIdsFromTripleMap(triplesMaps[j]).predicateObjectMapIds;
             var arrayData=[];
+            var aux=[];
             /* recorrer todos los objectMaps*/
                 for (var k=0; k<poms.length;k++){
                      let objMap= funciones.getIdsFromPredObjMap(poms[k]).objectMapId;
                      let predicVal= funciones.getIdsFromPredObjMap(poms[k]).predicateId;
-                     var dataType= funciones.getDataTypeFromObjMap(objMap);
+                     var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
                      //let attribute= funciones.getAttributeFromPredMap(predicVal);
-                     arrayData.push(dataType);
-                       
+                     var dataTypeParent= funciones.getDataTypeFromObjMap(objMap).dataTypeParent;
+                     if(dataTypeParent!=null){
+                        aux.push(dataTypeParent);
+                     }
+
+                     if(dataType!=null && !arrayData.includes(dataType) && dataType.charAt(0)!="{"){
+                        arrayData.push(dataType);
+                     }else if (dataType.charAt(0)=="{"){
+                         var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
+                         for(var m=0; m<dataType2.length;m++){
+                             dataType= dataType2[m];
+                             arrayData.push(dataType);
+                         }
+                     }
             }
             if(poms.length<=2){
+                if(arrayData.length==1){
+                    var dataType3= funciones.getTemplateFromSubjMap(subjMap);
+                    arrayData.push(dataType3);
+                }
+            //clase heroes
+            if(typeClass=="Heroes"){
+            queryInit+= "String " + arrayData[0] + ", String " + arrayData[1] + "){\n";
+            queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + " (" + arrayData[0] +"," + arrayData[1] + ");\n"
+            queryInit+= "\t}\n";
+            }else{
+            //resto de clases (para mantener orden con respecto al schema)    
             queryInit+= "String " + arrayData[1] + ", String " + arrayData[0] + "){\n";
             queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + " (" + arrayData[1] +"," + arrayData[0] + ");\n"
             queryInit+= "\t}\n";
+        }
+
+            //clase characters
             }else{
-            queryInit+= "String " + arrayData[3] + ", String " + arrayData[2] + "," + "String " +arrayData[1] + "){\n";
-            queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + " (" + arrayData[3] +"," + arrayData[2] + "," + arrayData[1] + ");\n"
+            queryInit+= "String " + arrayData[0] + ", String " + arrayData[2] + "," + "String " +arrayData[3] + ","+ "String " +arrayData[1] + "){\n";
+            queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + "s (" + arrayData[0] +"," + arrayData[2] + "," + arrayData[3] + "," + arrayData[1] + ");\n"
             queryInit+= "\t}\n";
             }
 
@@ -288,60 +313,8 @@ function generateQueryRoot(mappingDoc){
         return queryInit;
         
 }
-console.log(generateQueryRoot(mappingDoc));
-/*
-const textoQuery=
-`package com.example.demo.query;
-
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import com.example.demo.dao.entity.*;
-import com.example.demo.dao.entity.Character;
-import com.example.demo.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-@Component
-public class Query implements GraphQLQueryResolver{
-    //APPEARS
-    @Autowired
-    private AppearsService appearsService;
-    public Iterable<Appears> listAppears(final String charid) {
-        return this.appearsService.getAllAppears(charid);
-    }
-    //CHARACTER
-    @Autowired
-    private CharacterService characterService;
-    public Iterable<Character> listCharacter(String id, String fname, String lname, String type) {
-        return this.characterService.getAllCharacters(id,fname,lname,type);
-    }
-
-    //CHARACTERTYPE
-    @Autowired
-    private CharacterTypeService characterTypeService;
-    public Iterable<CharacterType> listCharacterType(String id, String name) {
-        return this.characterTypeService.getAllCharactersType(id,name);
-    }
-    //EPISODE
-    @Autowired
-    private EpisodeService episodeService;
-    public Iterable<Episode> listEpisode(String eid, String ecode) {
-        return this.episodeService.getAllEpisodes(eid, ecode);
-    }
-    //FRIENDS
-    @Autowired
-    private FriendsService friendsService;
-    public Iterable<Friends> listFriends(String id, String fid) {
-        return this.friendsService.getAllFriends(id, fid);
-    }
-    //HEROES
-    @Autowired
-    private HeroesService heroesService;
-    public Iterable<Heroes> listHeroes(String episodeid, String charid) {
-        return this.heroesService.getAllHeroes(episodeid, charid);
-    }
-}`;
-
-createFile(pathQueryFile,textoQuery);
+//console.log(generateQueryRoot(mappingDoc));
+createFile(pathQueryFile, generateQueryRoot(mappingDoc));
 /****************************************************************************** */
 /*3. Crear directorio y fichero mutation*
 createDir(pathMutationDir); //directorio
