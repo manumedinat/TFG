@@ -117,7 +117,7 @@ exports.getDataTypeFromObjMap=function(objMapId){
 
            }else{
                 dataType= elemento4['rr:template'];
-                arrayTemplates= extractColumnsFromTemplate(dataType);
+                arrayTemplates= columnsFromTemplate(dataType);
         }
     }
 }
@@ -158,21 +158,21 @@ console.log(`Attribute = ${result5}`);
 //console.log(`\nTarea 7: Obtener ids`);
 
 /*8. Extraer columnas de template*/
-function extractColumnsFromTemplate(templatetest){
-    let extractedColumns=[];
-    let column1, column2;
-    let splitedTemplate = templatetest.split("{");
+function columnsFromTemplate(templatetest){
+    var columns=[];
+    var split = templatetest.split("{");
 
-    for(let i =1 ; i<splitedTemplate.length ; i++ ){
-        let key = splitedTemplate[i].split("}")[0];
-        extractedColumns.push(key);
+    for(var i=1;i<split.length;i++){
+        var value = split[i].split("}")[0];
+        columns.push(value);
     }
     //extractedColumns[0]= column1;
     //extractedColumns[1]= column2;
 
-    return extractedColumns;
+    return columns;
     //return {column1,column2};
 }
+
 //console.log(extractColumnsFromTemplate("{fname} {lname}"))
 
 /*9: obtener ids que faltan para completar queryRoot*/
