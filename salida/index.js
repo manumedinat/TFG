@@ -314,65 +314,87 @@ function generateQueryRoot(mappingDoc){
         
 }
 //console.log(generateQueryRoot(mappingDoc));
-createFile(pathQueryFile, generateQueryRoot(mappingDoc));
+//createFile(pathQueryFile, generateQueryRoot(mappingDoc));
 /****************************************************************************** */
-/*3. Crear directorio y fichero mutation*
+/*3. Crear directorio y fichero mutation*/
 createDir(pathMutationDir); //directorio
-const textoMutation=
-`package com.example.demo.mutation;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import com.coxautodev.graphql.tools.GraphQLMutationResolver;
-import com.example.demo.dao.entity.*;
-import com.example.demo.dao.entity.Character;
-import com.example.demo.service.*;
+function generateMutationRoot(mappingDoc){
+    let mutationInit="";
+    mutationInit+="package com.example.demo.mutation;\n";
+    mutationInit+="import org.springframework.beans.factory.annotation.Autowired;\n";
+    mutationInit+="import org.springframework.stereotype.Component;\n";
+    mutationInit+="import com.coxautodev.graphql.tools.GraphQLMutationResolver;\n";
+    mutationInit+="import com.example.demo.dao.entity.*;\n";
+    mutationInit+="import com.example.demo.dao.entity.Character;\n";
+    mutationInit+="import com.example.demo.service.*;\n";
+    mutationInit+="@Component\n";
+    mutationInit+="\tpublic class Mutation implements GraphQLMutationResolver{\n";
+    let triplesMaps= funciones.getTriplesId();
+    /*recorrer todas las triplesMaps*/
+    for (var j=0; j< triplesMaps.length;j++){
+        let subjMap= funciones.getIdsFromTripleMap(triplesMaps[j]).subjectMapId;
+        let typeClass= funciones.getClassNameFromSubjMap(subjMap);
+        var typeClassLow= typeClass;
+        typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
+        mutationInit+="\t@Autowired\n";
+        mutationInit+="\tprivate " + typeClass + "Service " + typeClassLow + "Service;\n";
+        mutationInit+="\tpublic " + typeClass+ " create" + typeClass + "(";
+        let poms= funciones.getIdsFromTripleMap(triplesMaps[j]).predicateObjectMapIds;
+        var arrayData=[];
+        var aux=[];
+        /* recorrer todos los objectMaps*/
+            for (var k=0; k<poms.length;k++){
+                 let objMap= funciones.getIdsFromPredObjMap(poms[k]).objectMapId;
+                 let predicVal= funciones.getIdsFromPredObjMap(poms[k]).predicateId;
+                 var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
+                 //let attribute= funciones.getAttributeFromPredMap(predicVal);
+                 var dataTypeParent= funciones.getDataTypeFromObjMap(objMap).dataTypeParent;
+                 if(dataTypeParent!=null){
+                    aux.push(dataTypeParent);
+                 }
 
-//import java.time.LocalDate;
-@Component
-public class Mutation implements GraphQLMutationResolver {
-    //APPEARS
-    @Autowired
-    private AppearsService appearsService;
-    public Appears createAppears(String charid, String episodeid) {
-        return this.appearsService.createAppears(charid,episodeid);
-    }
-    //CHARACTER
-    @Autowired
-    private CharacterService characterService;
-    public Character createCharacter(String id, String fname, String lname, String type) {
-        return this.characterService.createCharacter(id,fname,lname,type);
-    }
-    //CHARACTERTYPE
-    @Autowired
-    private CharacterTypeService characterTypeService;
-    public CharacterType createCharacterType(String id, String name) {
-        return this.characterTypeService.createCharacterType(id,name);
-    }
-
-    //EPISODE
-    @Autowired
-    private EpisodeService episodeService;
-    public Episode createEpisode(String eid, String ecode) {
-        return this.episodeService.createEpisode(eid, ecode);
+                 if(dataType!=null && !arrayData.includes(dataType) && dataType.charAt(0)!="{"){
+                    arrayData.push(dataType);
+                 }else if (dataType.charAt(0)=="{"){
+                     var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
+                     for(var m=0; m<dataType2.length;m++){
+                         dataType= dataType2[m];
+                         arrayData.push(dataType);
+                     }
+                 }
+        }
+        if(poms.length<=2){
+            if(arrayData.length==1){
+                var dataType3= funciones.getTemplateFromSubjMap(subjMap);
+                arrayData.push(dataType3);
+            }
+        //clase heroes
+        if(typeClass=="Heroes"){
+        mutationInit+= "String " + arrayData[0] + ", String " + arrayData[1] + "){\n";
+        mutationInit+= "\t\treturn this."+ typeClassLow + "Service.create" + typeClass + " (" + arrayData[0] +"," + arrayData[1] + ");\n"
+        mutationInit+= "\t}\n";
+        }else{
+        //resto de clases (para mantener orden con respecto al schema)    
+        mutationInit+= "String " + arrayData[1] + ", String " + arrayData[0] + "){\n";
+        mutationInit+= "\t\treturn this."+ typeClassLow + "Service.create" + typeClass + " (" + arrayData[1] +"," + arrayData[0] + ");\n"
+        mutationInit+= "\t}\n";
     }
 
-    //FRIENDS
-    @Autowired
-    private FriendsService friendsService;
-    public Friends createFriends(String id, String fid) {
-        return this.friendsService.createFriends(id,fid);
-    }
+        //clase characters
+        }else{
+        mutationInit+= "String " + arrayData[0] + ", String " + arrayData[2] + "," + "String " +arrayData[3] + ","+ "String " +arrayData[1] + "){\n";
+        mutationInit+= "\t\treturn this."+ typeClassLow + "Service.create" + typeClass + " (" + arrayData[0] +"," + arrayData[2] + "," + arrayData[3] + "," + arrayData[1] + ");\n"
+        mutationInit+= "\t}\n";
+        }
 
-    //HEROES
-    @Autowired
-    private HeroesService heroesService;
-    public Heroes createHeroes(String episodeid, String charid) {
-        return this.heroesService.createHeroes(episodeid, charid);
     }
-}`;
-
-createFile(pathMutationFile,textoMutation); //fichero
+    mutationInit+="}";
+    return mutationInit;
+    
+}
+//console.log(generateMutationRoot(mappingDoc));
+//createFile(pathMutationFile, generateMutationRoot(mappingDoc));
 
 /*4. Crear directorio dao*
 createDir(pathDaoDir); //directorio
@@ -509,8 +531,70 @@ for (var i=0; i<arrayEntities.length;i++){
 
 
 
-/*5.Crear archivo graphqls y su directorio*
+/*5.Crear archivo graphqls y su directorio*/
 createDir(pathGQLDir);
+
+function generateType(triplesMap){
+    let textoType="";
+    let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
+    let typeClass= funciones.getClassNameFromSubjMap(subjMap);
+    var arrayType=[];
+    var aux2=[];
+    textoType+="type " + typeClass + "{\n";
+    let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
+    
+    for(var i=0; i<poms.length;i++){
+        let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
+        let predicate=funciones.getIdsFromPredObjMap(poms[i]).predicateId;
+        var funcionesAux= funciones.getAttributeFromPredMap(predicate);
+        var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
+
+        //para comprobar si es una función de join entre tablas, se va guardando para compare
+        var aux=["appearsIn", "hero", "type", "friends", "episode"];
+        if (aux.indexOf(funcionesAux)>-1){
+            aux2.push(funcionesAux);
+        }
+        if (dataType.charAt(0)=="{"){
+            var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
+            for(var m=0; m<dataType2.length;m++){
+                dataType= dataType2[m];
+                arrayType.push(dataType);
+            }
+        }else if(dataType!=null && !arrayType.includes(dataType) && dataType.charAt(0)!="{"){
+            arrayType.push(dataType);
+         }
+         
+    }
+    //if(poms.length<=2){
+        if(arrayType.length==1|| typeClass=="Appears"){
+            var dataType3= funciones.getTemplateFromSubjMap(subjMap);
+            arrayType.push(dataType3);       
+        }
+        for (var k= arrayType.length-1;k>=0;k--){
+            textoType+= "\t" + arrayType[k] + ": String\n";
+        }
+        
+        //meter funciones con joins en array de types
+        for(var l=0;l<aux2.length;l++){
+            if(aux2[l]== 'friends'){
+                textoType+= "\t" + aux2[l] + ": [Friends]\n";
+            }else if (aux2[l]=='episode'){
+                textoType+="\t" + aux2[l] + ": [Episode]\n";
+            }else if (aux2[l]=='hero'){
+                textoType+="\t" + aux2[l] + ": [Character]\n";
+            }else if (aux2[l]=='appearsIn'){
+                textoType+="\t" + aux2[l] + ": [Appears]\n";
+            }else{
+                textoType+="\t" + aux2[l] + ": [CharacterType]\n";
+            }
+            arrayType.push(aux2[l]);
+        }
+
+        textoType+= "}\n"; 
+        console.log(arrayType);
+        return textoType;
+}
+/*
 const textogql=
 `type Friends{
 	id: String
@@ -565,8 +649,12 @@ type Mutation {
 	createCharacter(id:Long, fname:String, lname:String, personType:String): Character
 	createEpisode(eid:String, ecode:String): Episode
 }`;
-
-createFile(pathGQLFile,textogql);
+*/
+let triplesMaps= funciones.getTriplesId();
+for(var j=0;j<triplesMaps.length;j++){
+console.log(generateType(triplesMaps[j]));
+}
+//createFile(pathGQLFile,textogql);
 
 /*6. Crear directorio resolver y sus ficheros correspondientes*
 createDir(pathResolverDir);
