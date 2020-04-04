@@ -539,16 +539,24 @@ function generateType(triplesMap){
     let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
     let typeClass= funciones.getClassNameFromSubjMap(subjMap);
     var arrayType=[];
+    var parents=[];
     var aux2=[];
+    var parentTriples=[];
     textoType+="type " + typeClass + "{\n";
     let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
-    
     for(var i=0; i<poms.length;i++){
         let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
         let predicate=funciones.getIdsFromPredObjMap(poms[i]).predicateId;
         var funcionesAux= funciones.getAttributeFromPredMap(predicate);
         var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
 
+        //sacar tripleta padre y sus objectos para funciones de joins (appearsIn, episode,hero...)
+        var parent= funciones.getDataTypeFromObjMap(objMap).parent;
+        var subjAux=funciones.getIdsFromTripleMap(parent).subjectMapId;
+        var classAux= funciones.getClassNameFromSubjMap(subjAux);
+        //typesParent.push(pattern);
+        parents.push(classAux); 
+        parentTriples.push(parent); // insertar padre en array de parents de la tripleta correspondiente
         //para comprobar si es una función de join entre tablas, se va guardando para compare
         var aux=["appearsIn", "hero", "type", "friends", "episode"];
         if (aux.indexOf(funcionesAux)>-1){
@@ -564,6 +572,7 @@ function generateType(triplesMap){
             arrayType.push(dataType);
          }
          
+
     }
     //if(poms.length<=2){
         if(arrayType.length==1|| typeClass=="Appears"){
@@ -575,64 +584,71 @@ function generateType(triplesMap){
         }
         
         //meter funciones con joins en array de types
+        var arrayFinal;
         for(var l=0;l<aux2.length;l++){
             if(aux2[l]== 'friends'){
-                textoType+= "\t" + aux2[l] + ": [Friends]\n";
+                arrayFinal=generateType(parentTriples[l]).arrayType;
+                textoType+= "\t" + aux2[l] + " (";
+                for(var j=arrayFinal.length-1;j>=0;j--){
+                    if(j==0){
+                        textoType+= arrayFinal[j] + ": String)";
+                    }else{
+                        textoType+= arrayFinal[j] + ": String, "
+                    }
+                }
+                textoType+=": [" + parents[l] + "]\n";
             }else if (aux2[l]=='episode'){
-                textoType+="\t" + aux2[l] + ": [Episode]\n";
+                arrayFinal=generateType(parentTriples[l]).arrayType;
+                textoType+= "\t" + aux2[l] + " (";
+                for(var j=arrayFinal.length-1;j>=0;j--){
+                    if(j==0){
+                        textoType+= arrayFinal[j] + ": String)";
+                    }else{
+                        textoType+= arrayFinal[j] + ": String, "
+                    }
+                }
+                textoType+=": [" + parents[l] + "]\n";
             }else if (aux2[l]=='hero'){
-                textoType+="\t" + aux2[l] + ": [Character]\n";
+                var arrayFinalAux=[]; //creado para insertar solo los parámetros necesarios
+                arrayFinal=generateType(parentTriples[l]).arrayType;
+                    for (var k in arrayFinal){
+                        if(arrayFinal[k]=='id'|| arrayFinal[k]=='fname'){
+                            arrayFinalAux.push(arrayFinal[k]);
+                        }
+                    }
+                textoType+= "\t" + aux2[l] + " (";
+                for(var j=0;j<arrayFinalAux.length;j++){
+                    if(j==1){
+                        textoType+= arrayFinalAux[j] + ": String)";
+                    }else{
+                        textoType+= arrayFinalAux[j] + ": String, "
+                    }
+                }
+                textoType+=": [" + parents[l] + "]\n";
             }else if (aux2[l]=='appearsIn'){
-                textoType+="\t" + aux2[l] + ": [Appears]\n";
+                textoType+="\t" + aux2[l] + ": [" + parents[l] + "]\n";
             }else{
-                textoType+="\t" + aux2[l] + ": [CharacterType]\n";
+                arrayFinal=generateType(parentTriples[l]).arrayType;
+                textoType+= "\t" + aux2[l] + " (";
+                for(var j=arrayFinal.length-1;j>=0;j--){
+                    if(j==0){
+                        textoType+= arrayFinal[j] + ": String)";
+                    }else{
+                        textoType+= arrayFinal[j] + ": String, "
+                    }
+                }
+                textoType+=": [" + parents[l] + "]\n";
             }
             arrayType.push(aux2[l]);
         }
 
         textoType+= "}\n"; 
-        console.log(arrayType);
-        return textoType;
+        //console.log(arrayType);
+        return {textoType,arrayType};
 }
 /*
 const textogql=
-`type Friends{
-	id: String
-	fid: String
-}
-
-type Appears {
-	_id: ID!
-	charid: String
-	episodeid: String
-	episode(eid: String, ecode: String): [Episode]
-}
-type Heroes{
-	episodeid: String
-	charid: String
-	episode(eid:String , ecode:String): [Episode]
-	hero(id:String, fname:String): [Character]
-}
-
-type Character{
-	id: String
-	fname: String
-	lname: String
-	personType:String
-	appearsIn(charid:String): [Appears]
-	friendship(id:String, fid:String) : [Friends]
-	type(id: String, name: String): [CharacterType] 
-}
-type Episode{
-	eid: String
-	ecode: String
-}
-
-type CharacterType{
-	id: String
-	name: String
-}
-
+`
 type Query {
 	listFriends(id:String, fid:String): [Friends]
 	listAppears(charid:String):[Appears]
@@ -652,7 +668,7 @@ type Mutation {
 */
 let triplesMaps= funciones.getTriplesId();
 for(var j=0;j<triplesMaps.length;j++){
-console.log(generateType(triplesMaps[j]));
+console.log(generateType(triplesMaps[j]).textoType);
 }
 //createFile(pathGQLFile,textogql);
 
