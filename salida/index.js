@@ -1,6 +1,7 @@
 /* Mecanismo para crear ficheros y directorios*/
 const funciones= require('../R2RML/funciones_ttl');
 const fs=require('fs');
+const arrayMove= require('array-move');
 const createDir=(dirPath)=>{
     fs.mkdirSync(dirPath, {recursive:true}, (error) =>{
         if (error){
@@ -252,9 +253,7 @@ function generateQueryRoot(mappingDoc){
         /*recorrer todas las triplesMaps*/
         for (var j=0; j< triplesMaps.length;j++){
             let subjMap= funciones.getIdsFromTripleMap(triplesMaps[j]).subjectMapId;
-            //console.log('hola entro' +subjMap);
             let typeClass= funciones.getClassNameFromSubjMap(subjMap);
-            //console.log(typeClass);
             var typeClassLow= typeClass;
             typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
             queryInit+="\t@Autowired\n";
@@ -269,11 +268,7 @@ function generateQueryRoot(mappingDoc){
                      let predicVal= funciones.getIdsFromPredObjMap(poms[k]).predicateId;
                      var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
                      //let attribute= funciones.getAttributeFromPredMap(predicVal);
-                     var dataTypeParent= funciones.getDataTypeFromObjMap(objMap).dataTypeParent;
-                     if(dataTypeParent!=null){
-                        aux.push(dataTypeParent);
-                     }
-
+                     
                      if(dataType!=null && !arrayData.includes(dataType) && dataType.charAt(0)!="{"){
                         arrayData.push(dataType);
                      }else if (dataType.charAt(0)=="{"){
@@ -285,29 +280,55 @@ function generateQueryRoot(mappingDoc){
                      }
             }
             if(poms.length<=2){
+
+                //para añadir campo que falta en la clase [Episode,Appears,Heroes]
                 if(arrayData.length==1){
                     var dataType3= funciones.getTemplateFromSubjMap(subjMap);
                     arrayData.push(dataType3);
                 }
             //clase heroes
             if(typeClass=="Heroes"){
-            queryInit+= "String " + arrayData[0] + ", String " + arrayData[1] + "){\n";
-            queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + " (" + arrayData[0] +"," + arrayData[1] + ");\n"
-            queryInit+= "\t}\n";
-            }else{
-            //resto de clases (para mantener orden con respecto al schema)    
-            queryInit+= "String " + arrayData[1] + ", String " + arrayData[0] + "){\n";
-            queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + " (" + arrayData[1] +"," + arrayData[0] + ");\n"
-            queryInit+= "\t}\n";
-        }
+                arrayData=arrayMove(arrayData,1,0);
+            }
+
+            //resto de clases (para mantener orden con respecto al schema)
+                for (var k= arrayData.length-1;k>=0;k--){    
+                    if(k==0){
+                        queryInit+= "String " + arrayData[k] + "){\n";
+                        queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass;
+                        queryInit+= " (" + arrayData[k+1] +"," + arrayData[k] + ");\n"
+                    }else{
+                        queryInit+= "String " + arrayData[k] + ",";
+                    }
+                }
+                    queryInit+= "\t}\n\n";
 
             //clase characters
             }else{
-            queryInit+= "String " + arrayData[0] + ", String " + arrayData[2] + "," + "String " +arrayData[3] + ","+ "String " +arrayData[1] + "){\n";
-            queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + "s (" + arrayData[0] +"," + arrayData[2] + "," + arrayData[3] + "," + arrayData[1] + ");\n"
-            queryInit+= "\t}\n";
+                //reordenacion array
+                arrayData=arrayMove(arrayData,1,2);
+                arrayData=arrayMove(arrayData,2,3);
+                
+                //recorrer parametros de List
+                for(var k=0;k<arrayData.length;k++){
+                    if(k!=arrayData.length-1){
+                        queryInit+= "String " + arrayData[k] + ",";
+                    }else{
+                        queryInit+= "String " + arrayData[k] + "){\n";
+                    }
+                }
+                queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + "s (";
+                
+                //recorrer parametros de return service
+                for(var k2=0;k2<arrayData.length;k2++){
+                    if(k2!=arrayData.length-1){
+                        queryInit+= arrayData[k2] + ",";
+                    }else{
+                        queryInit+= arrayData[k2] + ");\n";
+                    }
+                }
+                queryInit+= "\t}\n\n";
             }
-
         }
         queryInit+="}";
         return queryInit;
@@ -349,11 +370,6 @@ function generateMutationRoot(mappingDoc){
                  let predicVal= funciones.getIdsFromPredObjMap(poms[k]).predicateId;
                  var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
                  //let attribute= funciones.getAttributeFromPredMap(predicVal);
-                 var dataTypeParent= funciones.getDataTypeFromObjMap(objMap).dataTypeParent;
-                 if(dataTypeParent!=null){
-                    aux.push(dataTypeParent);
-                 }
-
                  if(dataType!=null && !arrayData.includes(dataType) && dataType.charAt(0)!="{"){
                     arrayData.push(dataType);
                  }else if (dataType.charAt(0)=="{"){
@@ -365,28 +381,53 @@ function generateMutationRoot(mappingDoc){
                  }
         }
         if(poms.length<=2){
+            //para añadir campo que falta en la clase [Episode,Appears,Heroes]
             if(arrayData.length==1){
                 var dataType3= funciones.getTemplateFromSubjMap(subjMap);
                 arrayData.push(dataType3);
             }
         //clase heroes
         if(typeClass=="Heroes"){
-        mutationInit+= "String " + arrayData[0] + ", String " + arrayData[1] + "){\n";
-        mutationInit+= "\t\treturn this."+ typeClassLow + "Service.create" + typeClass + " (" + arrayData[0] +"," + arrayData[1] + ");\n"
-        mutationInit+= "\t}\n";
-        }else{
+            arrayData= arrayMove(arrayData,1,0);
+        }
         //resto de clases (para mantener orden con respecto al schema)    
-        mutationInit+= "String " + arrayData[1] + ", String " + arrayData[0] + "){\n";
-        mutationInit+= "\t\treturn this."+ typeClassLow + "Service.create" + typeClass + " (" + arrayData[1] +"," + arrayData[0] + ");\n"
-        mutationInit+= "\t}\n";
-    }
-
+            for (var k= arrayData.length-1;k>=0;k--){    
+                if(k==0){
+                    mutationInit+= "String " + arrayData[k] + "){\n";
+                    mutationInit+= "\t\treturn this."+ typeClassLow + "Service.create" + typeClass;
+                    mutationInit+= " (" + arrayData[k+1] +"," + arrayData[k] + ");\n"
+                }else{
+                    mutationInit+= "String " + arrayData[k] + ",";
+                }
+            }
+            mutationInit+= "\t}\n\n";
         //clase characters
         }else{
-        mutationInit+= "String " + arrayData[0] + ", String " + arrayData[2] + "," + "String " +arrayData[3] + ","+ "String " +arrayData[1] + "){\n";
-        mutationInit+= "\t\treturn this."+ typeClassLow + "Service.create" + typeClass + " (" + arrayData[0] +"," + arrayData[2] + "," + arrayData[3] + "," + arrayData[1] + ");\n"
-        mutationInit+= "\t}\n";
+            //reordenacion array
+            arrayData=arrayMove(arrayData,1,2);
+            arrayData=arrayMove(arrayData,2,3);
+        
+            //recorrer parametros de List
+            for(var k=0;k<arrayData.length;k++){
+                if(k!=arrayData.length-1){
+                mutationInit+= "String " + arrayData[k] + ",";
+                }else{
+                mutationInit+= "String " + arrayData[k] + "){\n";
+                }
+                
+            }
+            mutationInit+= "\t\treturn this."+ typeClassLow + "Service.create" + typeClass + "s (";
+        
+            //recorrer parametros de return service
+            for(var k2=0;k2<arrayData.length;k2++){
+                if(k2!=arrayData.length-1){
+                    mutationInit+= arrayData[k2] + ",";
+                }else{
+                mutationInit+= arrayData[k2] + ");\n";
+            }
         }
+        mutationInit+= "\t}\n\n";
+    }
 
     }
     mutationInit+="}";
@@ -554,9 +595,9 @@ function generateType(triplesMap){
         var parent= funciones.getDataTypeFromObjMap(objMap).parent;
         var subjAux=funciones.getIdsFromTripleMap(parent).subjectMapId;
         var classAux= funciones.getClassNameFromSubjMap(subjAux);
-        //typesParent.push(pattern);
         parents.push(classAux); 
         parentTriples.push(parent); // insertar padre en array de parents de la tripleta correspondiente
+
         //para comprobar si es una función de join entre tablas, se va guardando para compare
         var aux=["appearsIn", "hero", "type", "friends", "episode"];
         if (aux.indexOf(funcionesAux)>-1){
@@ -574,20 +615,25 @@ function generateType(triplesMap){
          
 
     }
-    //if(poms.length<=2){
+
         if(arrayType.length==1|| typeClass=="Appears"){
             var dataType3= funciones.getTemplateFromSubjMap(subjMap);
             arrayType.push(dataType3);       
         }
-        for (var k= arrayType.length-1;k>=0;k--){
+        if(arrayType.length<3 && typeClass!="Heroes"){
+            arrayType= arrayMove(arrayType,0,1);
+        }else if(typeClass!="Heroes"){
+            arrayType= arrayMove(arrayType,1,2);
+            arrayType= arrayMove(arrayType,2,3);
+        }
+        for (var k= 0;k<arrayType.length;k++){
             textoType+= "\t" + arrayType[k] + ": String\n";
         }
-        
         //meter funciones con joins en array de types
         var arrayFinal;
         for(var l=0;l<aux2.length;l++){
             if(aux2[l]== 'friends'){
-                arrayFinal=generateType(parentTriples[l]).arrayType;
+                arrayFinal=generateType(parentTriples[l]).arrayType; //obtener parametros de la tripleta padre
                 textoType+= "\t" + aux2[l] + " (";
                 for(var j=arrayFinal.length-1;j>=0;j--){
                     if(j==0){
@@ -598,7 +644,7 @@ function generateType(triplesMap){
                 }
                 textoType+=": [" + parents[l] + "]\n";
             }else if (aux2[l]=='episode'){
-                arrayFinal=generateType(parentTriples[l]).arrayType;
+                arrayFinal=generateType(parentTriples[l]).arrayType; //obtener parametros de la tripleta padre
                 textoType+= "\t" + aux2[l] + " (";
                 for(var j=arrayFinal.length-1;j>=0;j--){
                     if(j==0){
@@ -610,7 +656,7 @@ function generateType(triplesMap){
                 textoType+=": [" + parents[l] + "]\n";
             }else if (aux2[l]=='hero'){
                 var arrayFinalAux=[]; //creado para insertar solo los parámetros necesarios
-                arrayFinal=generateType(parentTriples[l]).arrayType;
+                arrayFinal=generateType(parentTriples[l]).arrayType; //obtener parametros de la tripleta padre
                     for (var k in arrayFinal){
                         if(arrayFinal[k]=='id'|| arrayFinal[k]=='fname'){
                             arrayFinalAux.push(arrayFinal[k]);
@@ -628,7 +674,7 @@ function generateType(triplesMap){
             }else if (aux2[l]=='appearsIn'){
                 textoType+="\t" + aux2[l] + ": [" + parents[l] + "]\n";
             }else{
-                arrayFinal=generateType(parentTriples[l]).arrayType;
+                arrayFinal=generateType(parentTriples[l]).arrayType; //obtener parametros de la tripleta padre
                 textoType+= "\t" + aux2[l] + " (";
                 for(var j=arrayFinal.length-1;j>=0;j--){
                     if(j==0){
@@ -645,6 +691,58 @@ function generateType(triplesMap){
         textoType+= "}\n"; 
         //console.log(arrayType);
         return {textoType,arrayType};
+}
+
+//let querySchema= "type Query {"
+function generateQuery(triplesMap){
+    let querySchema="";
+    let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
+    let typeClass= funciones.getClassNameFromSubjMap(subjMap);
+    var arrayQuery=[];
+    var parents=[];
+    var aux2=[];
+    var parentTriples=[];
+    //querySchema+="type Query {\n";
+    let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
+    for(var i=0; i<poms.length;i++){
+        let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
+        let predicate=funciones.getIdsFromPredObjMap(poms[i]).predicateId;
+        //var funcionesAux= funciones.getAttributeFromPredMap(predicate);
+        var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
+        if (dataType.charAt(0)=="{"){
+            var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
+            for(var m=0; m<dataType2.length;m++){
+                dataType= dataType2[m];
+                arrayQuery.push(dataType);
+            }
+        }else if(dataType!=null && !arrayQuery.includes(dataType) && dataType.charAt(0)!="{"){
+            arrayQuery.push(dataType);
+         }
+         
+
+    }
+
+        if(arrayQuery.length==1|| typeClass=="Appears"){
+            var dataType3= funciones.getTemplateFromSubjMap(subjMap);
+            arrayQuery.push(dataType3);       
+        }
+
+        if(arrayQuery.length<3 && typeClass!="Heroes"){
+            arrayQuery= arrayMove(arrayQuery,0,1);
+        }else if(typeClass!="Heroes"){
+            arrayQuery= arrayMove(arrayQuery,1,2);
+            arrayQuery= arrayMove(arrayQuery,2,3);
+        }
+        querySchema+= "\t list" + typeClass + "(";
+        for (var k= 0;k<arrayQuery.length;k++){
+            if(k!=arrayQuery.length-1){
+                querySchema+= arrayQuery[k] + ": String, ";
+            }else{
+                querySchema+= arrayQuery[k] + ": String):";
+            }
+        }
+        querySchema+= "[" + typeClass + "]";
+        return querySchema;
 }
 /*
 const textogql=
@@ -666,10 +764,19 @@ type Mutation {
 	createEpisode(eid:String, ecode:String): Episode
 }`;
 */
+var texto="";
 let triplesMaps= funciones.getTriplesId();
 for(var j=0;j<triplesMaps.length;j++){
-console.log(generateType(triplesMaps[j]).textoType);
+    texto+=generateType(triplesMaps[j]).textoType;
+    //console.log(generateType(triplesMaps[j]).textoType);
 }
+ texto+= "\ntype Query {\n";
+for(var m=0;m<triplesMaps.length;m++){
+    texto+=generateQuery(triplesMaps[m]) + "\n";
+    //console.log(generateQuery(triplesMaps[m]));
+}
+texto+= "}\n";
+console.log(texto);
 //createFile(pathGQLFile,textogql);
 
 /*6. Crear directorio resolver y sus ficheros correspondientes*
