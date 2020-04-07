@@ -5,6 +5,7 @@ Funcionalides:
 
 
 Carpeta 'prueba': A partir de fichero 'DemoApplication.java', se arranca Spring Boot Application.
+
 Carpeta 'R2RML': 
 -Fichero 'funciones_ttl.js' con las funciones para tratar el JSON a partir de un fichero *.ttl
 -Fichero 'index.js' por el cual se genera el servidor
