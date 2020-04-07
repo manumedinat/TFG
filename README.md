@@ -18,6 +18,7 @@ Pasos:
 2. Insertar comandos(spring initializr):
 
 npm install array-move
+
 npm install -g yo
 
 npm install -g generator-spring-initializr
