@@ -1,7 +1,6 @@
 /* Mecanismo para crear ficheros y directorios*/
 const funciones= require('../R2RML/funciones_ttl');
 const fs=require('fs');
-const arrayMove= require('array-move');
 const createDir=(dirPath)=>{
     fs.mkdirSync(dirPath, {recursive:true}, (error) =>{
         if (error){
@@ -139,17 +138,17 @@ for (var i=0; i<arrayEntities.length;i++){
         }
     }`
      }else if(i==1){
-      textoService+= ` (final String id, final String fname, final String lname, final String typeid) {\n`;
+      textoService+= ` (final String id, final String typeid,final String fname, final String lname) {\n`;
       textoService+= ` final Character character = new Character();
       character.setId(id);
+      character.setTypeid(typeid);
       character.setFname(fname);
       character.setLname(lname);
-      character.setTypeid(typeid);
       return this.characterRepository.save(character);
     }
         
     @Transactional(readOnly = true)
-      public Iterable<Character> getAllCharacters(final String id, final String fname, final String lname,final String typeid) {
+      public Iterable<Character> getAllCharacter(final String id, final String typeid, final String fname, final String lname) {
          if (characterRepository.findCharacterByIdOrFname(id, fname).isEmpty()) {
                 return this.characterRepository.findAll();
            }
@@ -268,7 +267,12 @@ function generateQueryRoot(mappingDoc){
                      let objMap= funciones.getIdsFromPredObjMap(poms[k]).objectMapId;
                      let predicVal= funciones.getIdsFromPredObjMap(poms[k]).predicateId;
                      var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
-                     //let attribute= funciones.getAttributeFromPredMap(predicVal);
+                     var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
+                     
+                     //para que solo haya un único id en array de datos de cada entidad
+                     if(!arrayData.includes(dataType3)){
+                     arrayData.push(dataType3);
+                     }
                      
                      if(dataType!=null && !arrayData.includes(dataType) && dataType.charAt(0)!="{"){
                         arrayData.push(dataType);
@@ -278,38 +282,9 @@ function generateQueryRoot(mappingDoc){
                              dataType= dataType2[m];
                              arrayData.push(dataType);
                          }
-                     }
-            }
-            if(poms.length<=2){
-
-                //para añadir campo que falta en la clase [Episode,Appears,Heroes]
-                if(arrayData.length==1){
-                    var dataType3= funciones.getTemplateFromSubjMap(subjMap);
-                    arrayData.push(dataType3);
-                }
-            //clase heroes
-            if(typeClass=="Heroes"){
-                arrayData=arrayMove(arrayData,1,0);
+                     } 
             }
 
-            //resto de clases (para mantener orden con respecto al schema)
-                for (var k= arrayData.length-1;k>=0;k--){    
-                    if(k==0){
-                        queryInit+= "String " + arrayData[k] + "){\n";
-                        queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass;
-                        queryInit+= " (" + arrayData[k+1] +"," + arrayData[k] + ");\n"
-                    }else{
-                        queryInit+= "String " + arrayData[k] + ",";
-                    }
-                }
-                    queryInit+= "\t}\n\n";
-
-            //clase characters
-            }else{
-                //reordenacion array
-                arrayData=arrayMove(arrayData,1,2);
-                arrayData=arrayMove(arrayData,2,3);
-                
                 //recorrer parametros de List
                 for(var k=0;k<arrayData.length;k++){
                     if(k!=arrayData.length-1){
@@ -318,7 +293,7 @@ function generateQueryRoot(mappingDoc){
                         queryInit+= "String " + arrayData[k] + "){\n";
                     }
                 }
-                queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + "s (";
+                queryInit+= "\t\treturn this."+ typeClassLow + "Service.getAll" + typeClass + " (";
                 
                 //recorrer parametros de return service
                 for(var k2=0;k2<arrayData.length;k2++){
@@ -329,7 +304,6 @@ function generateQueryRoot(mappingDoc){
                     }
                 }
                 queryInit+= "\t}\n\n";
-            }
         }
         queryInit+="}";
         return queryInit;
@@ -370,7 +344,12 @@ function generateMutationRoot(mappingDoc){
                  let objMap= funciones.getIdsFromPredObjMap(poms[k]).objectMapId;
                  let predicVal= funciones.getIdsFromPredObjMap(poms[k]).predicateId;
                  var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
-                 //let attribute= funciones.getAttributeFromPredMap(predicVal);
+                 var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
+                     
+                 //para que solo haya un único id en array de datos de cada entidad
+                 if(!arrayData.includes(dataType3)){
+                     arrayData.push(dataType3);
+                 }
                  if(dataType!=null && !arrayData.includes(dataType) && dataType.charAt(0)!="{"){
                     arrayData.push(dataType);
                  }else if (dataType.charAt(0)=="{"){
@@ -380,33 +359,7 @@ function generateMutationRoot(mappingDoc){
                          arrayData.push(dataType);
                      }
                  }
-        }
-        if(poms.length<=2){
-            //para añadir campo que falta en la clase [Episode,Appears,Heroes]
-            if(arrayData.length==1){
-                var dataType3= funciones.getTemplateFromSubjMap(subjMap);
-                arrayData.push(dataType3);
             }
-        //clase heroes
-        if(typeClass=="Heroes"){
-            arrayData= arrayMove(arrayData,1,0);
-        }
-        //resto de clases (para mantener orden con respecto al schema)    
-            for (var k= arrayData.length-1;k>=0;k--){    
-                if(k==0){
-                    mutationInit+= "String " + arrayData[k] + "){\n";
-                    mutationInit+= "\t\treturn this."+ typeClassLow + "Service.create" + typeClass;
-                    mutationInit+= " (" + arrayData[k+1] +"," + arrayData[k] + ");\n"
-                }else{
-                    mutationInit+= "String " + arrayData[k] + ",";
-                }
-            }
-            mutationInit+= "\t}\n\n";
-        //clase characters
-        }else{
-            //reordenacion array
-            arrayData=arrayMove(arrayData,1,2);
-            arrayData=arrayMove(arrayData,2,3);
         
             //recorrer parametros de List
             for(var k=0;k<arrayData.length;k++){
@@ -430,7 +383,6 @@ function generateMutationRoot(mappingDoc){
         mutationInit+= "\t}\n\n";
     }
 
-    }
     mutationInit+="}";
     return mutationInit;
     
@@ -496,7 +448,7 @@ var textoEntity;
     }`
 
     }else if(i==2){
-        textoEntity+= `@Column(name="type")\n`;
+        textoEntity+= `@Column(name="id")\n`;
         textoEntity+= `private String id;\n`;
         textoEntity+=
       `@Column(name = "name", nullable = false)
@@ -603,11 +555,12 @@ function generateType(triplesMap){
         var classAux= funciones.getClassNameFromSubjMap(subjAux);
         parents.push(classAux); 
         parentTriples.push(parent); // insertar padre en array de parents de la tripleta correspondiente
-
-        //para comprobar si es una función de join entre tablas, se va guardando para compare
-        var aux=["appearsIn", "hero", "type", "friends", "episode"];
-        if (aux.indexOf(funcionesAux)>-1){
-            aux2.push(funcionesAux);
+        aux2.push(funcionesAux); //guardar funciones auxiliares (appearsIn, episode, hero,type)
+        var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
+                     
+        //para que solo haya un único id en array de datos de cada entidad
+        if(!arrayType.includes(dataType3)){
+            arrayType.push(dataType3);
         }
         if (dataType.charAt(0)=="{"){
             var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
@@ -622,99 +575,45 @@ function generateType(triplesMap){
 
     }
 
-        if(arrayType.length==1|| typeClass=="Appears"){
-            var dataType3= funciones.getTemplateFromSubjMap(subjMap);
-            arrayType.push(dataType3);       
-        }
-        if(arrayType.length<3 && typeClass!="Heroes"){
-            arrayType= arrayMove(arrayType,0,1);
-        }else if(typeClass!="Heroes"){
-            arrayType= arrayMove(arrayType,1,2);
-            arrayType= arrayMove(arrayType,2,3);
-        }
         for (var k= 0;k<arrayType.length;k++){
             textoType+= "\t" + arrayType[k] + ": String\n";
         }
         //meter funciones con joins en array de types
         var arrayFinal;
         for(var l=0;l<aux2.length;l++){
-            if(aux2[l]== 'friends'){
                 arrayFinal=generateType(parentTriples[l]).arrayType; //obtener parametros de la tripleta padre
+                if(parents[l]!=null){
                 textoType+= "\t" + aux2[l] + " (";
-                for(var j=arrayFinal.length-1;j>=0;j--){
-                    if(j==0){
+                for(var j=0;j<arrayFinal.length;j++){
+                    if(j==arrayFinal.length-1){
                         textoType+= arrayFinal[j] + ": String)";
                     }else{
                         textoType+= arrayFinal[j] + ": String, "
                     }
                 }
                 textoType+=": [" + parents[l] + "]\n";
-            }else if (aux2[l]=='episode'){
-                arrayFinal=generateType(parentTriples[l]).arrayType; //obtener parametros de la tripleta padre
-                textoType+= "\t" + aux2[l] + " (";
-                for(var j=arrayFinal.length-1;j>=0;j--){
-                    if(j==0){
-                        textoType+= arrayFinal[j] + ": String)";
-                    }else{
-                        textoType+= arrayFinal[j] + ": String, "
-                    }
-                }
-                textoType+=": [" + parents[l] + "]\n";
-            }else if (aux2[l]=='hero'){
-                var arrayFinalAux=[]; //creado para insertar solo los parámetros necesarios
-                arrayFinal=generateType(parentTriples[l]).arrayType; //obtener parametros de la tripleta padre
-                    for (var k in arrayFinal){
-                        if(arrayFinal[k]=='id'|| arrayFinal[k]=='fname'){
-                            arrayFinalAux.push(arrayFinal[k]);
-                        }
-                    }
-                textoType+= "\t" + aux2[l] + " (";
-                for(var j=0;j<arrayFinalAux.length;j++){
-                    if(j==1){
-                        textoType+= arrayFinalAux[j] + ": String)";
-                    }else{
-                        textoType+= arrayFinalAux[j] + ": String, "
-                    }
-                }
-                textoType+=": [" + parents[l] + "]\n";
-            }else if (aux2[l]=='appearsIn'){
-                textoType+="\t" + aux2[l] + ": [" + parents[l] + "]\n";
-            }else{
-                arrayFinal=generateType(parentTriples[l]).arrayType; //obtener parametros de la tripleta padre
-                textoType+= "\t" + aux2[l] + " (";
-                for(var j=arrayFinal.length-1;j>=0;j--){
-                    if(j==0){
-                        textoType+= arrayFinal[j] + ": String)";
-                    }else{
-                        textoType+= arrayFinal[j] + ": String, "
-                    }
-                }
-                textoType+=": [" + parents[l] + "]\n";
-            }
-            arrayType.push(aux2[l]);
+            }    
         }
-
         textoType+= "}\n"; 
-        //console.log(arrayType);
         return {textoType,arrayType};
 }
 
-//let querySchema= "type Query {"
+
 function generateQuery(triplesMap){
     let querySchema="";
     let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
     let typeClass= funciones.getClassNameFromSubjMap(subjMap);
     var arrayQuery=[];
-    var parents=[];
-    var aux2=[];
-    var parentTriples=[];
-    //querySchema+="type Query {\n";
     let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
     for(var i=0; i<poms.length;i++){
         let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
-        let predicate=funciones.getIdsFromPredObjMap(poms[i]).predicateId;
-        //var funcionesAux= funciones.getAttributeFromPredMap(predicate);
         var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
+        var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
+                     
+        //para que solo haya un único id en array de datos de cada entidad
+        if(!arrayQuery.includes(dataType3)){
+            arrayQuery.push(dataType3);
+        }
         if (dataType.charAt(0)=="{"){
             var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
             for(var m=0; m<dataType2.length;m++){
@@ -724,21 +623,8 @@ function generateQuery(triplesMap){
         }else if(dataType!=null && !arrayQuery.includes(dataType) && dataType.charAt(0)!="{"){
             arrayQuery.push(dataType);
          }
-         
 
     }
-
-        if(arrayQuery.length==1|| typeClass=="Appears"){
-            var dataType3= funciones.getTemplateFromSubjMap(subjMap);
-            arrayQuery.push(dataType3);       
-        }
-
-        if(arrayQuery.length<3 && typeClass!="Heroes"){
-            arrayQuery= arrayMove(arrayQuery,0,1);
-        }else if(typeClass!="Heroes"){
-            arrayQuery= arrayMove(arrayQuery,1,2);
-            arrayQuery= arrayMove(arrayQuery,2,3);
-        }
         querySchema+= "\t list" + typeClass + "(";
         for (var k= 0;k<arrayQuery.length;k++){
             if(k!=arrayQuery.length-1){
@@ -750,35 +636,63 @@ function generateQuery(triplesMap){
         querySchema+= "[" + typeClass + "]";
         return querySchema;
 }
-/*
-type Mutation {
-	createFriendship(id:String, fid:String): Friendship
-	createAppears(charid:String, episodeid:String): Appears
-	createHeroes(episode:String, charid:String): Heroes
-	createCharacter(id:String, fname:String, lname:String, typeid:String): Character
-	createEpisode(id:String, code:String): Episode
-}`;
-*/
+
+function generateMutation(triplesMap){
+    let mutationSchema="";
+    let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
+    let typeClass= funciones.getClassNameFromSubjMap(subjMap);
+    var arrayMutation=[];
+    let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
+    for(var i=0; i<poms.length;i++){
+        let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
+        var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
+        var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
+                     
+        //para que solo haya un único id en array de datos de cada entidad
+        if(!arrayMutation.includes(dataType3)){
+            arrayMutation.push(dataType3);
+        }
+        if (dataType.charAt(0)=="{"){
+            var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
+            for(var m=0; m<dataType2.length;m++){
+                dataType= dataType2[m];
+                arrayMutation.push(dataType);
+            }
+        }else if(dataType!=null && !arrayMutation.includes(dataType) && dataType.charAt(0)!="{"){
+            arrayMutation.push(dataType);
+         }
+
+    }
+        mutationSchema+= "\t create" + typeClass + "(";
+        for (var k= 0;k<arrayMutation.length;k++){
+            if(k!=arrayMutation.length-1){
+                mutationSchema+= arrayMutation[k] + ": String, ";
+            }else{
+                mutationSchema+= arrayMutation[k] + ": String):";
+            }
+        }
+        mutationSchema+= typeClass;
+        return mutationSchema;
+}
 var texto="";
 let triplesMaps= funciones.getTriplesId();
 for(var j=0;j<triplesMaps.length;j++){
     texto+=generateType(triplesMaps[j]).textoType;
     //console.log(generateType(triplesMaps[j]).textoType);
 }
+
  texto+= "\ntype Query {\n";
 for(var m=0;m<triplesMaps.length;m++){
     texto+=generateQuery(triplesMaps[m]) + "\n";
     //console.log(generateQuery(triplesMaps[m]));
 }
+texto+="}\n";
+texto+= "\ntype Mutation {\n";
+for(var n=0;n<triplesMaps.length;n++){
+    texto+=generateMutation(triplesMaps[n]) + "\n";
+    //console.log(generateMutation(triplesMaps[n]));
+}
 texto+="}";
-texto+=`
-type Mutation {
-	createFriendship(id:String, fid:String): Friendship
-	createAppears(charid:String, episodeid:String): Appears
-	createHeroes(episode:String, charid:String): Heroes
-	createCharacter(id:String, fname:String, lname:String, typeid:String): Character
-	createEpisode(id:String, code:String): Episode
-    }\n`;
 //console.log(texto);
 createFile(pathGQLFile,texto);
 
@@ -826,14 +740,14 @@ for (var i=0; i< resolverEnt.length;i++){
         this.characterTypeRepository= characterTypeRepository;
     }
 
-    public List<Appears> getAppearsIn(final Character character) {
+    public List<Appears> getAppearsIn(final Character character, final String charid, final String episodeid) {
             return appearsRepository.findAppearsInByCharid(character.getId()); 
         }
     public List<Friendship> getFriends(final Character character, final String id, final String fid) {
         return friendshipRepository.findAllByIdOrFid(character.getId(), character.getId());
     }
     public List<CharacterType> getType (final Character character, final String id, final String name){
-        return characterTypeRepository.findAllCharacterTypeByIdOrName(character.getId(),name);
+        return characterTypeRepository.findAllCharacterTypeByIdOrName(character.getTypeid(),name);
     }   
 }`;
     }else{
@@ -848,7 +762,7 @@ for (var i=0; i< resolverEnt.length;i++){
     public List<Episode> getEpisode(Heroes heroes, final String id, final String code) {
         return episodeRepository.findEpisodeByIdOrCode(heroes.getEpisodeid(), code);
     }
-    public Iterable<Character> getHero(Heroes heroes, final String id, final String fname) {
+    public Iterable<Character> getHero(Heroes heroes, final String id, final String typeid, final String fname, final String lname) {
         return characterRepository.findCharactersByIdOrFname(heroes.getCharid(), fname);
     }    
 }`;
@@ -911,5 +825,5 @@ spring.datasource.password=Pasapurar14
 spring.jpa.hibernate.use-new-id-generator-mappings=false
 spring.jpa.hibernate.ddl-auto=update`;
 createFile(pathAppPtyFile,textoAppPty);
-
+//*/
 
