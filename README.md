@@ -13,11 +13,10 @@ Carpeta 'R2RML':
   -Fichero 'index.js' por el cual se genera el servidor
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Pasos:
 1. Crear carpeta nueva, llamada 'prueba'.
 2. Insertar comandos(spring initializr):
-
-npm install array-move
 
 npm install -g yo
 
