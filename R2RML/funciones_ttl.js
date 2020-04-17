@@ -103,7 +103,7 @@ console.log(`Class Name = ${result3}`);
 
 /*5. Función para obtener datatype a partir de un objectMap */
 exports.getDataTypeFromObjMap=function(objMapId){
-    var dataType, aux2,elemento4,arrayTemplates,parent;
+    var dataType, aux2,elemento4,arrayTemplates,parent,child,parentCond;
     for(var j in jsonFile["@graph"]){
         elemento4 = jsonFile["@graph"][j];
 
@@ -113,7 +113,9 @@ exports.getDataTypeFromObjMap=function(objMapId){
 
             }else if (!elemento4['rr:column'] && !elemento4['rr:template']){
                 aux2=elemento4['rr:joinCondition']['@id'];    
-                dataType= getIdsFromJoin(aux2).child;
+                child= getIdsFromJoin(aux2).child;
+                parentCond= getIdsFromJoin(aux2).parent;
+                dataType=child;
                 parent= elemento4['rr:parentTriplesMap'] ['@id'];
 
            }else{
@@ -122,7 +124,7 @@ exports.getDataTypeFromObjMap=function(objMapId){
         }
     }
 }
-    return {dataType,arrayTemplates,parent};
+    return {dataType,arrayTemplates,parent,child, parentCond};
 }
 
 /*console.log(`\nTarea 5: Obtener Data Type`)
