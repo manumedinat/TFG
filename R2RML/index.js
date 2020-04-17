@@ -65,8 +65,8 @@ const pathEpisodeEntityFile= pathDaoEntityDir + "/"+ arrayEntities[3] + ".java";
 const pathFriendsEntityFile= pathDaoEntityDir + "/"+ arrayEntities[4] + ".java";
 const pathHeroesEntityFile= pathDaoEntityDir + "/"+ arrayEntities[5] + ".java";
 
-var entityFiles = [pathAppearsEntityFile, pathCharacterEntityFile, pathCharacterTypeEntityFile,
-    pathEpisodeEntityFile, pathFriendsEntityFile, pathHeroesEntityFile];
+var entityFiles = [pathFriendsEntityFile,pathHeroesEntityFile,pathAppearsEntityFile, pathCharacterEntityFile, 
+    pathEpisodeEntityFile,pathCharacterTypeEntityFile];
 
 /*-------------VARIABLES FICHEROS DIRECTORIO REPOSITORY--------------------*/
 const pathAppearsRepositoryFile= pathDaoRepositoryDir +"/"+  arrayEntities[0] +  "Repository.java";
@@ -75,8 +75,8 @@ const pathCharacterTypeRepositoryFile= pathDaoRepositoryDir +"/"+  arrayEntities
 const pathEpisodeRepositoryFile= pathDaoRepositoryDir +"/"+  arrayEntities[3] +  "Repository.java";
 const pathFriendsRepositoryFile= pathDaoRepositoryDir +"/"+  arrayEntities[4] +   "Repository.java";
 const pathHeroesRepositoryFile= pathDaoRepositoryDir +"/"+  arrayEntities[5] +  "Repository.java";
-var repositoryFiles = [pathAppearsRepositoryFile, pathCharacterRepositoryFile, pathCharacterTypeRepositoryFile,
-    pathEpisodeRepositoryFile, pathFriendsRepositoryFile, pathHeroesRepositoryFile];
+var repositoryFiles = [pathFriendsRepositoryFile,pathHeroesRepositoryFile,pathAppearsRepositoryFile, 
+    pathCharacterRepositoryFile,pathEpisodeRepositoryFile,pathCharacterTypeRepositoryFile];
    
 /*-------------VARIABLES FICHERO SCHEMA GQL--------------------*/
 const pathGQLFile= '../prueba/src/main/resources/graphql/starwarsql.graphqls';
@@ -97,7 +97,6 @@ import com.example.demo.dao.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -131,10 +130,10 @@ for (var i=0; i<arrayEntities.length;i++){
         
     @Transactional(readOnly = true)
        public Iterable<Appears> getAllAppears(final String charid, final String episodeid) {
-         if(appearsRepository.findByCharid(charid).isEmpty()){
+         if(appearsRepository.findAllByCharidOrEpisodeid(charid,episodeid).isEmpty()){
             return this.appearsRepository.findAll();
            }
-            return this.appearsRepository.findByCharid(charid);
+            return this.appearsRepository.findAllByCharidOrEpisodeid(charid,episodeid);
         }
     }`
      }else if(i==1){
@@ -149,10 +148,10 @@ for (var i=0; i<arrayEntities.length;i++){
         
     @Transactional(readOnly = true)
       public Iterable<Character> getAllCharacter(final String id, final String typeid, final String fname, final String lname) {
-         if (characterRepository.findCharacterByIdOrFname(id, fname).isEmpty()) {
+         if (characterRepository.findAllByIdOrTypeidOrFnameOrLname(id,typeid,fname,lname).isEmpty()) {
                 return this.characterRepository.findAll();
            }
-              return this.characterRepository.findCharacterByIdOrFname(id, fname); 
+              return this.characterRepository.findAllByIdOrTypeidOrFnameOrLname(id,typeid,fname,lname); 
         }  
     }`
      }else if (i==2){
@@ -165,10 +164,10 @@ for (var i=0; i<arrayEntities.length;i++){
 
      @Transactional(readOnly = true)
        public Iterable<CharacterType> getAllCharacterType(final String id, final String name) {
-         if (characterTypeRepository.findAllCharacterTypeByIdOrName(id,name).isEmpty()) {
+         if (characterTypeRepository.findAllByIdOrName(id,name).isEmpty()) {
         return this.characterTypeRepository.findAll();
       }
-      return this.characterTypeRepository.findAllCharacterTypeByIdOrName(id,name);
+      return this.characterTypeRepository.findAllByIdOrName(id,name);
     }
 }`
     }else if (i==3){
@@ -181,10 +180,10 @@ for (var i=0; i<arrayEntities.length;i++){
 
     @Transactional(readOnly = true)
     public Iterable<Episode> getAllEpisode(String id, String code) {
-        if(episodeRepository.findEpisodeByIdOrCode(id, code).isEmpty()){
+        if(episodeRepository.findAllByIdOrCode(id, code).isEmpty()){
             return this.episodeRepository.findAll();
         }
-        return this.episodeRepository.findEpisodeByIdOrCode(id, code);
+        return this.episodeRepository.findAllByIdOrCode(id, code);
     }
    
 }`
@@ -199,10 +198,10 @@ for (var i=0; i<arrayEntities.length;i++){
 
     @Transactional(readOnly = true)
     public Iterable<Friendship> getAllFriendship(String id, String fid) {
-        if(friendshipRepository.findFriendshipByIdOrFid(id, fid).isEmpty()){
+        if(friendshipRepository.findAllByIdOrFid(id, fid).isEmpty()){
             return this.friendshipRepository.findAll();
         }
-        return this.friendshipRepository.findFriendshipByIdOrFid(id, fid);
+        return this.friendshipRepository.findAllByIdOrFid(id, fid);
     }
    
 }`
@@ -217,10 +216,10 @@ for (var i=0; i<arrayEntities.length;i++){
     @Transactional(readOnly = true)
     public List<Heroes> getAllHeroes(String episodeid, String charid) {
       // if(heroesRepository.findHeroesByEpisodeid(episodeid, charid).isEmpty()){
-        if(heroesRepository.findHeroesByEpisodeidOrCharid(episodeid,charid).isEmpty()){
+        if(heroesRepository.findAllByEpisodeidOrCharid(episodeid,charid).isEmpty()){
         return this.heroesRepository.findAll();
         }
-        return this.heroesRepository.findByEpisodeidOrCharid(episodeid,charid);
+        return this.heroesRepository.findAllByEpisodeidOrCharid(episodeid,charid);
     }
 }` 
     }
@@ -395,140 +394,161 @@ createDir(pathDaoDir); //directorio
 
 /*4.1 Crear directorio entity y fichero entity*/
 createDir(pathDaoEntityDir);
-const textoEntityInicio=`
-package com.example.demo.dao.entity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import javax.persistence.*;
-import java.io.Serializable;
-import java.time.LocalDate;
 
-@Data
-@EqualsAndHashCode
-@Entity\n`;
+function generateEntities(triplesMap){
+var textoEntity="";
+textoEntity+= "package com.example.demo.dao.entity;\n";
+textoEntity+= "import lombok.Data;\n";
+textoEntity+= "import lombok.EqualsAndHashCode;\n";
+textoEntity+= "import javax.persistence.*;\n";
+textoEntity+= "import java.io.Serializable;\n";
+textoEntity+= "@Data\n";
+textoEntity+= "@EqualsAndHashCode\n";
+textoEntity+= "@Entity\n";
+    let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
+    let typeClass= funciones.getClassNameFromSubjMap(subjMap);
+    var typeClassLow= typeClass;
+    typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
+    textoEntity+= '@Table (name="' + typeClassLow + '_SW")\n';
+    textoEntity+= "public class " + typeClass + " implements Serializable{\n"
+    textoEntity+= "private static final long serialVersionUID = 1L;\n"
+    var arrayEntities=[];
+    var arrayChilds=[];
+    const arrayAux=[];
+    var arrayParents=[];
+    let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
+    for(var i=0; i<poms.length;i++){
+        let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
+        var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
+        var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
+        var child= funciones.getDataTypeFromObjMap(objMap).child; //sacar columna (foreign key)
+        var parentCond= funciones.getDataTypeFromObjMap(objMap).parentCond; //para sacar charid de Appears
+       // if(!arrayChilds.includes(child)){
+            arrayChilds.push(child);
+        //} 
 
-//public class `;
-var textoEntity;
+        var parent=funciones.getDataTypeFromObjMap(objMap).parent;//sacar tripleta padre   
+        var parentSubjMap= funciones.getIdsFromTripleMap(parent).subjectMapId;
+        var parentClass= funciones.getClassNameFromSubjMap(parentSubjMap);  
+        arrayParents.push(parentClass); //nombres de las clases padres en arrayParents   
 
-    for (var i=0;i<arrayEntities.length;i++){
-    textoEntity=textoEntityInicio;
-    if(i==1){
-        textoEntity+= `@Table (name="characters")`;
+        //para que solo haya un único id en array de datos de cada entidad
+        if(!arrayEntities.includes(dataType3)){
+            arrayEntities.push(dataType3);
+        }
+        if (dataType.charAt(0)=="{"){
+            var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
+            for(var m=0; m<dataType2.length;m++){
+                dataType= dataType2[m];
+                arrayEntities.push(dataType);
+            }
+        }else if(dataType!=null && !arrayEntities.includes(dataType) && dataType.charAt(0)!="{"){
+            arrayEntities.push(dataType);
+         }
+
     }
-    textoEntity+= 'public class ' + arrayEntities[i] + ` implements Serializable{\n`;
-    textoEntity+= `private static final long serialVersionUID = 1L;\n`;
-    textoEntity+= `@Id\n`;
-    if(i==0){
-        textoEntity+= `@Column(name="ID",nullable = false)\n`;
-        textoEntity+= `@GeneratedValue\n`;
-        textoEntity+= `private int _id;\n`;
-        textoEntity+=
-       `@Column(unique = false)
-        private String charid;
-   
-        @Column(name = "episodeid", nullable = false)
-        private String episodeid;
-    }` 
-    }else if(i==1){
-        textoEntity+= `private String id;\n`;
-        textoEntity+= `@OneToOne(fetch = FetchType.LAZY)\n`;
-        textoEntity+=
-      `@MapsId
-       @JoinColumn(name="id")
-       private Friendship friendship;
-       
-       @Column(name = "fname", nullable = false)
-       private String fname;
-   
-       @Column(name = "lname")
-       private String lname;
-   
-       @Column(name = "type", nullable = false)
-       private String typeid;
-    }`
-
-    }else if(i==2){
-        textoEntity+= `@Column(name="id")\n`;
-        textoEntity+= `private String id;\n`;
-        textoEntity+=
-      `@Column(name = "name", nullable = false)
-       private String name;  
-    }`
-    }else if(i==3){
-        textoEntity+= `@Column(name="eid")\n`;
-        textoEntity+= `private String id;\n`;
-        textoEntity+=
-      `@Column(name = "ecode", nullable = false)
-       private String code;  
-    }`
-    }else if(i==4){
-        textoEntity+= `@Column(name= "ID",unique = false)\n`;
-        textoEntity+= `private String id;\n`;
-        textoEntity+=
-      `@Column(name = "FR_ID")
-       private String fid; 
-    }`
-    }else{
-        textoEntity+= `private String episodeid;\n`;
-        textoEntity+= `@Column(name = "characters_id")\n`;
-        textoEntity+= `private String charid;
-    }`
-    }
-    for (var j=0;j<entityFiles.length;j++){
-        createFile(entityFiles[i],textoEntity);
-    }
-
+        for (var k=0; k<arrayEntities.length;k++){
+            if(k==0){
+                textoEntity+="\t@Id\n";
+            }
+           // textoEntity+= '\t@Column(name="' + arrayEntities[k] + '")\n'; 
+            //textoEntity+= "\tprivate String " + arrayEntities[k] + ";\n\n";
+            if(arrayChilds.includes(arrayEntities[k])){
+            for(var m=0; m<arrayChilds.length;m++){
+            if(arrayChilds[m]== arrayEntities[k] && arrayParents[m]!=null){
+                if(arrayChilds[m+1]!= arrayChilds[m]){
+                textoEntity+= '\t@Column(name="' + arrayChilds[m] + '")\n'; 
+                textoEntity+= "\tprivate String " + arrayChilds[m] + ";\n\n";
+                textoEntity+= "\t@ManyToOne(fetch = FetchType.EAGER)\n";
+                textoEntity+= '\t@JoinColumn(name="' + arrayChilds[m] + '", insertable=false, updatable=false)\n';
+                var typeClassLow= arrayParents[m];
+                typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
+                textoEntity+= "\tprivate " + arrayParents[m] + " " + typeClassLow + ";\n\n";
+                }
+            }
+            }
+        }else{
+            textoEntity+= '\t@Column(name="' + arrayEntities[k] + '")\n'; 
+            textoEntity+= "\tprivate String " + arrayEntities[k] + ";\n\n";
+        }
+        }
+        textoEntity+="}\n";
+        return textoEntity;
 }
+let triplesMaps2= funciones.getTriplesId();
+for(var j=0;j<triplesMaps2.length;j++){
+    //console.log(generateEntities(triplesMaps2[j]));
+    createFile(entityFiles[j],generateEntities(triplesMaps2[j]));
+}
+/*******************************************************
+ * 
+ * 
+ */
 
 
 /*4.2 Crear directorio y fichero repository*/
 createDir(pathDaoRepositoryDir); //directorio
-const textoRepositoryInicio=
-`package com.example.demo.dao.repository;
-import com.example.demo.dao.entity.*;
-import com.example.demo.dao.entity.Character;
-import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-@Repository\n
-`;
-var textoRepository;
-for (var i=0; i<arrayEntities.length;i++){
-    textoRepository= textoRepositoryInicio;
-    textoRepository+=`public interface ` + arrayEntities[i] + `Repository extends JpaRepository <`;
-    textoRepository+= arrayEntities[i] + `,String> {\n`;
-      if(i==0){
-      textoRepository+= `List <Appears> findByCharid(String charid);\n`;
-      textoRepository+= `List <Appears> findAppearsInByCharid(String charid);\n`;
-      textoRepository+=`}`;
-     }else if(i==1){
-      textoRepository+= `List<Character> findCharacterByIdOrFname(String id, String fname);\n`;
-      textoRepository+= `List<Character> findCharactersByIdOrFname(String id, String fname);\n`;
-      textoRepository+= `List<Character> findAllById(String id);\n`;
-      textoRepository+=`}`;
-     }else if (i==2){
-        textoRepository+= `List<CharacterType> findAllCharacterTypeByIdOrName(String id, String name);\n`;
-        textoRepository+=`}`;
-    }else if (i==3){
-        textoRepository+= `List <Episode> findEpisodeByIdOrCode (String id, String code);\n`;
-        textoRepository+=`}`;
-    }else if(i==4){
-        textoRepository+= ` List<Friendship> findFriendshipByIdOrFid(String id, String fid);\n`;
-        textoRepository+= ` List <Friendship> findAllByIdOrFid(String id, String fid);\n`;
-        textoRepository+=`}`;
-    }else{
-        textoRepository+= ` List<Heroes> findHeroesByEpisodeidOrCharid(String episodeid, String charid);\n`;
-        textoRepository+= ` List<Heroes> findByEpisodeidOrCharid(String episodeid, String charid); \n`;
-        textoRepository+= ` List<Heroes> findAllByEpisodeid(String episodeid);\n`;
-        textoRepository+= ` List<Heroes> findAllByCharid(String charid);\n`;
-        textoRepository+=`}`;
+function generateRepositories(triplesMap){
+    var textoRepository="";
+    textoRepository+= "package com.example.demo.dao.repository;\n";
+    textoRepository+= "import com.example.demo.dao.entity.*;\n";
+    textoRepository+= "import com.example.demo.dao.entity.Character;\n";
+    textoRepository+= "import java.util.List;\n";
+    textoRepository+= "import org.springframework.data.jpa.repository.JpaRepository;\n";
+    textoRepository+= "import org.springframework.stereotype.Repository;\n";
+    textoRepository+= "@Repository\n";
+        let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
+        let typeClass= funciones.getClassNameFromSubjMap(subjMap);
+        textoRepository+= "public interface " + typeClass + "Repository extends JpaRepository<";
+        textoRepository+= typeClass + ", String> {\n"
+        var arrayRepositories=[];
+        let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
+        for(var i=0; i<poms.length;i++){
+            let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
+            var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
+            var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
+            //para que solo haya un único id en array de datos de cada entidad
+            if(!arrayRepositories.includes(dataType3)){
+                arrayRepositories.push(dataType3);
+            }
+            if (dataType.charAt(0)=="{"){
+                var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
+                for(var m=0; m<dataType2.length;m++){
+                    dataType= dataType2[m];
+                    arrayRepositories.push(dataType);
+                }
+            }else if(dataType!=null && !arrayRepositories.includes(dataType) && dataType.charAt(0)!="{"){
+                arrayRepositories.push(dataType);
+             }
+    
+        }
+            textoRepository+= "List <" + typeClass + "> findAllBy";
+            for (var k=0; k<arrayRepositories.length;k++){
+                var repositoryUpper= arrayRepositories[k];
+                repositoryUpper= repositoryUpper.charAt(0).toUpperCase() + repositoryUpper.slice(1);
+                    if(k!=arrayRepositories.length-1){
+                        textoRepository+= repositoryUpper + "Or";
+                    }else{
+                        textoRepository+= repositoryUpper;
+                }
+            }
+            textoRepository+="(";
+            for (var k2=0; k2<arrayRepositories.length;k2++){
+                textoRepository+= "String ";
+                if(k2!=arrayRepositories.length-1){
+                    textoRepository+= arrayRepositories[k2] + ", ";
+                }else{
+                    textoRepository+= arrayRepositories[k2] + ");\n";
+                }
+            }
+            textoRepository+="}\n";
+            return textoRepository;
     }
-    for (var j=0;j<serviceFiles.length;j++){
-        createFile(repositoryFiles[i],textoRepository);
+    let triplesMaps3= funciones.getTriplesId();
+    for(var l=0;l<triplesMaps3.length;l++){
+        //console.log(generateRepositories(triplesMaps3[l]));
+        createFile(repositoryFiles[l],generateRepositories(triplesMaps3[l]));
     }
-  }
-
-
 
 /*5.Crear archivo graphqls y su directorio*/
 createDir(pathGQLDir);
@@ -575,7 +595,7 @@ function generateType(triplesMap){
 
     }
 
-        for (var k= 0;k<arrayType.length;k++){
+        for (var k=0;k<arrayType.length;k++){
             textoType+= "\t" + arrayType[k] + ": String\n";
         }
         //meter funciones con joins en array de types
@@ -726,7 +746,7 @@ for (var i=0; i< resolverEnt.length;i++){
         `this.episodeRepository = episodeRepository;
     }
     public Iterable<Episode> getEpisode(Appears appears,  String id,  String code) {
-        return episodeRepository.findEpisodeByIdOrCode(appears.getEpisodeid(), code);
+        return episodeRepository.findAllByIdOrCode(appears.getEpisodeid(), code);
      }
 }`;
     }else if (i==1){
@@ -741,13 +761,13 @@ for (var i=0; i< resolverEnt.length;i++){
     }
 
     public List<Appears> getAppearsIn(final Character character, final String charid, final String episodeid) {
-            return appearsRepository.findAppearsInByCharid(character.getId()); 
+            return appearsRepository.findAllByCharidOrEpisodeid(character.getId(),episodeid); 
         }
     public List<Friendship> getFriends(final Character character, final String id, final String fid) {
         return friendshipRepository.findAllByIdOrFid(character.getId(), character.getId());
     }
     public List<CharacterType> getType (final Character character, final String id, final String name){
-        return characterTypeRepository.findAllCharacterTypeByIdOrName(character.getTypeid(),name);
+        return characterTypeRepository.findAllByIdOrName(character.getTypeid(),name);
     }   
 }`;
     }else{
@@ -760,10 +780,10 @@ for (var i=0; i< resolverEnt.length;i++){
     }
 
     public List<Episode> getEpisode(Heroes heroes, final String id, final String code) {
-        return episodeRepository.findEpisodeByIdOrCode(heroes.getEpisodeid(), code);
+        return episodeRepository.findAllByIdOrCode(heroes.getEpisodeid(), code);
     }
     public Iterable<Character> getHero(Heroes heroes, final String id, final String typeid, final String fname, final String lname) {
-        return characterRepository.findCharactersByIdOrFname(heroes.getCharid(), fname);
+        return characterRepository.findAllByIdOrTypeidOrFnameOrLname(heroes.getCharid(), typeid, fname, lname);
     }    
 }`;
    }
@@ -800,7 +820,6 @@ var str =`
     <version>1.18.8</version>
     <optional>true</optional>
 </dependency>\n`
-//var position = 1018;
 var file_path = '../prueba/pom.xml';
 fs.readFile(file_path, function read(err, data) {
         if (err) {
@@ -808,7 +827,6 @@ fs.readFile(file_path, function read(err, data) {
         }
     var file_content = data.toString();
     var position= file_content.lastIndexOf("y");
-    console.log(position);
     file_content = file_content.substring(position+2);
     var file = fs.openSync(file_path,'r+');
     var bufferedText = new Buffer(str+file_content);
@@ -825,5 +843,5 @@ spring.datasource.password=Pasapurar14
 spring.jpa.hibernate.use-new-id-generator-mappings=false
 spring.jpa.hibernate.ddl-auto=update`;
 createFile(pathAppPtyFile,textoAppPty);
-//*/
+
 
