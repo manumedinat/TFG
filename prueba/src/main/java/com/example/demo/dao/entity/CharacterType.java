@@ -4,30 +4,22 @@ import lombok.EqualsAndHashCode;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
-
 @Data
 @EqualsAndHashCode
 @Entity
-@Table(name="characterType")
-public class CharacterType implements Serializable {
+@Table (name="characterType_SW")
+public class CharacterType implements Serializable{
+private static final long serialVersionUID = 1L;
+	@Id
+	@Column(name="id")
+	private String id;
 
-    private static final long serialVersionUID = 1L;
+	@Column(name="name")
+	private String name;
 
-
-    @Id
-   // @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="type")
-    private String id;
-    
-    /*@Column(name="type")
-    private String id;
-    */
-    @Column(name = "name", nullable = false)
-    private String name;    
-
-
-    /*@OneToOne (mappedBy = "characterType")
-    private Character character;
-    */
+	public String getIdentifier(){
+        String identifier= "http://starwars.mappingpedia.linkeddata.es/type/";
+        identifier+= id;
+        return identifier;
+	}
 }
