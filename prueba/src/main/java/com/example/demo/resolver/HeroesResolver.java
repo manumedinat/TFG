@@ -12,31 +12,29 @@ import com.example.demo.dao.entity.Character;
 import com.example.demo.dao.repository.*;
 
 import org.springframework.stereotype.Component;
-
-
-
 @Component
-public class HeroesResolver implements GraphQLResolver<Heroes> {
-    private final CharacterRepository characterRepository;
-    private final EpisodeRepository episodeRepository;
-    private final HeroesRepository heroesRepository;
-
-
-    public HeroesResolver(final HeroesRepository heroesRepository,final CharacterRepository characterRepository, EpisodeRepository episodeRepository) {
-        this.characterRepository = characterRepository;
-        this.episodeRepository= episodeRepository;
-        this.heroesRepository= heroesRepository;
+public class HeroesResolver implements GraphQLResolver <Heroes>{
+private final CharacterRepository characterRepository;
+private final EpisodeRepository episodeRepository;
+public HeroesResolver (final CharacterRepository characterRepository, final EpisodeRepository episodeRepository){
+this.characterRepository = characterRepository;
+         this.episodeRepository= episodeRepository;
     }
-
-    public List<Episode> getEpisode(Heroes heroes, final String eid, final String ecode) {
-        return episodeRepository.findEpisodeByEidOrEcode(heroes.getEpisodeid(), ecode);
+    
+    public List<Episode> getEpisode(Heroes heroes, final String id, final String code) {
+        if(id!=null){
+            return episodeRepository.findAllByIdOrCode(id,code);
+        }else if(code!=null){
+            return episodeRepository.findAllByIdOrCode(id,code);
+        }
+        return episodeRepository.findAllByIdOrCode(id,code);
     }
-        public Iterable<Character> getHero(Heroes heroes, final String id, final String fname) {
-            if(characterRepository.findCharactersByIdOrFname(id, fname).isEmpty()){
-                return characterRepository.findCharactersByIdOrFname(heroes.getCharid(), fname);
-            }
-            return characterRepository.findCharactersByIdOrFname(id, fname);
-           //return characterRepository.findAll().stream().filter(character-> id.equals(heroes.getCharid())).collect(Collectors.toSet());
-        }    
-
+    public Iterable<Character> getHero(Heroes heroes, final String id, final String fname, final String lname) {
+        if(id!=null){
+            return characterRepository.findAllByIdOrFnameOrLname(id, fname, lname);
+        }else if(fname!=null){
+            return characterRepository.findAllByIdOrFnameOrLname(id, fname, lname);
+        }
+        return characterRepository.findAllByIdOrFnameOrLname(id, fname, lname);
+    }    
 }
