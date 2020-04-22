@@ -1,37 +1,34 @@
 package com.example.demo.resolver;
 
 import java.util.List;
+import java.util.Optional;
+
+import javax.validation.constraints.NotBlank;
+
 import com.coxautodev.graphql.tools.GraphQLResolver;
-import com.example.demo.dao.entity.Appears;
-import com.example.demo.dao.entity.Episode;
-import com.example.demo.dao.repository.AppearsRepository;
-import com.example.demo.dao.repository.EpisodeRepository;
+import com.example.demo.dao.*;
+import com.example.demo.dao.entity.*;
+import com.example.demo.dao.entity.Character;
+import com.example.demo.dao.repository.*;
 
 import org.springframework.stereotype.Component;
-
-
-
 @Component
-public class AppearsResolver implements GraphQLResolver<Appears> {
-    private final EpisodeRepository episodeRepository;
-    private final AppearsRepository appearsRepository;
- 
-
-    public AppearsResolver(final EpisodeRepository episodeRepository, final AppearsRepository appearsRepository) {
-        this.episodeRepository = episodeRepository;
-        this.appearsRepository= appearsRepository;
+public class AppearsResolver implements GraphQLResolver <Appears>{
+private final EpisodeRepository episodeRepository;
+public AppearsResolver (final EpisodeRepository episodeRepository){
+this.episodeRepository = episodeRepository;
     }
-
-    public Iterable<Episode> getEpisode(Appears appears,  String eid,  String ecode) {
-        if(appearsRepository.findByCharid(appears.getCharid()).isEmpty()){
-            return episodeRepository.findAll();
+    public String identifier (Appears appears){
+        String resultado= "http://starwars.mappingpedia.linkeddata.es/movie/";
+        resultado+= appears.getCharid().getId() + "/" + appears.getEpisodeid().getId();
+        return resultado;
+    }
+    public List<Episode> getEpisode(Appears appears,  String id,  String code) {
+        if(id!=null){
+           return episodeRepository.findAllByIdOrCode(id,code);
+        }else if (code!=null){
+            return episodeRepository.findAllByIdOrCode(id,code);
         }
-        return episodeRepository.findEpisodeByEidOrEcode(eid, ecode);
-           /* if(episodeRepository.findEpisodeByeidOrEcode(eid, ecode).isEmpty()) {
-            return episodeRepository.findAll().stream().filter((episode-> appears.getEpisodeid().equals(eid))).collect(Collectors.toList());
-            }else{
-                return episodeRepository.findAll();
-            }*/
-        }
-
+        return episodeRepository.findAllByIdOrCode(id,code);
+     }
 }
