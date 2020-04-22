@@ -1,33 +1,31 @@
 package com.example.demo.dao.entity;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import javax.persistence.*;
-
-
 import java.io.Serializable;
-
+import java.util.List;
 @Data
 @EqualsAndHashCode
 @Entity
-public class Heroes implements Serializable {
+@Table (name="heroes_SW")
+public class Heroes implements Serializable{
+private static final long serialVersionUID = 1L;
+	@Id
+	@Column(name="episodeid")
+	private String episodeid;
 
-    private static final long serialVersionUID = 1L;
+	@ManyToOne
+	@JoinColumn(name="episodeid", insertable = false, updatable = false)
+	private Episode episode;
 
-    @Id
-   // @Column(name = "ID_Heroes", nullable = false)
-    private String episodeid;
-    
-    
-    /*@Column(name = "charid", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="characters_id")
-    private Character character;
-    */
-    @Column(name = "characters_id")
-    private String charid;
-    
-    
-    
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name="charid")
+	private Character charid;
+
+	public String getIdentifier(){
+        String identifier= "http://starwars.mappingpedia.linkeddata.es/heroes/";
+        identifier+= episode.getId() + "/" + charid.getId() ;
+        return identifier;
+	}
+	
 }
