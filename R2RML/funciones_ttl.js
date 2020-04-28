@@ -111,14 +111,14 @@ exports.getDataTypeFromObjMap=function(objMapId){
             if(!elemento4['rr:joinCondition'] && !elemento4['rr:template']){
                 dataType= elemento4['rr:column'];
 
-            }else if (!elemento4['rr:column'] && !elemento4['rr:template']){
+            /*}else if (!elemento4['rr:column'] && !elemento4['rr:template']){
                 aux2=elemento4['rr:joinCondition']['@id'];    
                 child= getIdsFromJoin(aux2).child;
                 parentCond= getIdsFromJoin(aux2).parent;
                 dataType=child;
                 parent= elemento4['rr:parentTriplesMap'] ['@id'];
-
-           }else{
+                    */
+           }else if(!elemento4['rr:joinCondition'] && !elemento4['rr:column']){
                 dataType= elemento4['rr:template'];
                 arrayTemplates= columnsFromTemplate(dataType);
         }
@@ -169,28 +169,46 @@ function columnsFromTemplate(templatetest){
         var value = split[i].split("}")[0];
         columns.push(value);
     }
-    //extractedColumns[0]= column1;
-    //extractedColumns[1]= column2;
-
     return columns;
-    //return {column1,column2};
 }
 
-//console.log(extractColumnsFromTemplate("{fname} {lname}"))
 
 /*9: obtener ids que faltan para completar queryRoot*/
 exports.getTemplateFromSubjMap=function(subjMapId){
-    var templateId, aux2,elemento6;
+    var template,templateId, aux2,elemento6, templateId2;
     for(var j in jsonFile["@graph"]){
         elemento6 = jsonFile["@graph"][j];
 
         if(elemento6['@id']=== subjMapId){
             aux2= elemento6['rr:template'];
+            template= aux2;
+            template= template.split('/').slice(0,4).join('/') + "/";
             templateId= aux2.match(/{(.*)}/)[1];
+            templateId2= templateId;
             templateId=templateId.split("}")[0];
+            templateId2= templateId2.split("}/{")[1];
         }
     }
-    return templateId;
+    return {template,templateId, templateId2};
+}
+
+/*10: Extraer elementos de join condition*/
+exports.getDataTypeFromObjMap_JoinCondition=function(objMapId){
+    var dataType2,aux3,elemento10,parent,child,parentCond;
+    for(var j in jsonFile["@graph"]){
+        elemento10 = jsonFile["@graph"][j];
+
+        if(elemento10['@id']=== objMapId){
+            if (!elemento10['rr:column'] && !elemento10['rr:template']){
+                aux3=elemento10['rr:joinCondition']['@id'];    
+                child= getIdsFromJoin(aux3).child;
+                parentCond= getIdsFromJoin(aux3).parent;
+                dataType2=child;
+                parent= elemento10['rr:parentTriplesMap'] ['@id'];
+        }
+    }
+}
+    return {dataType2,parent,child, parentCond};
 }
 
 
