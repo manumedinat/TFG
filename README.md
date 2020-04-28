@@ -29,6 +29,6 @@ yo spring-initializr
 - Si se usa usuario root, no hace falta cambiarlo.
 - Si se usa otra contraseña (o ninguna), cambiar el parámetro 'spring.datasource.password' por la que se utilice en MySQL.
 
-5. Ejecutar fichero 'index.js' de la carpeta 'R2RML'
+5. Ejecutar fichero 'ServerGenerator.js' de la carpeta 'R2RML'
 6. Arrancar la clase 'DemoApplication.java'
 7. Ir a localhost:8080/graphiql y realizar las consultas que se requiera
