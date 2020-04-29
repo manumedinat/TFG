@@ -45,7 +45,6 @@ const pathPom= '../prueba/pom.xml';
 const pathQueryFile= pathQueryDir + "/Query.java";
 
 /** 1. Generar fichero application.properties */
-//console.log(server.getApplicationProperties());
 createFile(pathAppPtyFile, server.getApplicationProperties());
 
 /**2. Generar fichero pom.xml */
@@ -63,7 +62,6 @@ fs.writeSync(file, bufferedText, 0, bufferedText.length, position+2);
 fs.close(file);
 });
 
-
 /**3. Generar QueryRoot */
 createDir(pathQueryDir); // crear directorio de query
 createFile(pathQueryFile, server.generateQueryRoot(mappingDoc)); //crear fichero query
@@ -71,17 +69,22 @@ createFile(pathQueryFile, server.generateQueryRoot(mappingDoc)); //crear fichero
 /**4. Generar Resources (Entity, Repository) */
 createDir(pathDaoEntityDir); //crear directorio de todas las entidades
 createDir(pathDaoRepositoryDir); // crear directorio de todos los repositorios
-createDir(pathResolverDir);
+createDir(pathResolverDir); //crear directorio de los resolvers correspondientes a las entidades relacionales 
 let triplesMaps= funciones.getTriplesId();
 for(var i=0;i<triplesMaps.length;i++){
     let subjMap= funciones.getIdsFromTripleMap(triplesMaps[i]).subjectMapId;
     let typeClass= funciones.getClassNameFromSubjMap(subjMap);
 
-    //Crear entidad de cada una de las clases
+    //Crear IdClass para entidades con composite PK
+    if(server.hasIdClass(triplesMaps[i])){
+        var idClassFile= pathDaoEntityDir + "/" + typeClass + "Id.java";
+        createFile(idClassFile, server.generateIdClass(triplesMaps[i]));
+    }
+    //Crear entidad de cada una de las clases del directorio entity
     var entityFile= pathDaoEntityDir + "/" + typeClass + ".java"
     createFile(entityFile, server.generateEntities(triplesMaps[i]));
 
-    //Crear repositorio de cada una de las clases
+    //Crear repositorio de cada una de las clases del directorio repository
     var repositoryFile= pathDaoRepositoryDir + "/" + typeClass + "Repository.java";
     createFile(repositoryFile,server.generateRepositories(triplesMaps[i]));
 
@@ -97,4 +100,5 @@ for(var i=0;i<triplesMaps.length;i++){
 }
 
 /**5. Generar GraphQL Schema */
+createDir(pathGQLDir);
 createFile(pathGQLFile, server.generateSchema());

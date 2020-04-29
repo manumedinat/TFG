@@ -1,81 +1,12 @@
-/* Mecanismo para crear ficheros y directorios*/
+/* Referencia a fs y fichero funciones*/
 const funciones= require('../R2RML/funciones_ttl');
 const fs=require('fs');
-const createDir=(dirPath)=>{
-    fs.mkdirSync(dirPath, {recursive:true}, (error) =>{
-        if (error){
-            console.error('error', error);
-        }else{
-            console.log('directorio creado');
-        }
-    });
-}
-
-const createFile=(filePath,fileContent)=>{
-    fs.writeFileSync(filePath, fileContent, (error) =>{
-        if (error){
-            console.error('error', error);
-        }else{
-            console.log('fichero creado');
-        }
-    });
-}
-
 /*Referencia a fichero de mappeo*/
 var fileMapping= fs.readFileSync("./mappings.r2rml.json"); //leer fichero en formato utf8
 var jsonFile= JSON.parse(fileMapping); //parsear fichero 
 var mappingDoc=jsonFile;
-/* ------------VARIABLES DIRECTORIOS-----------------*/
-const pathDemo='../prueba/src/main/java/com/example/demo/';
-const pathServiceDir= pathDemo + 'service';
-const pathQueryDir= pathDemo + 'query';
-const pathMutationDir= pathDemo + 'mutation';
-const pathResolverDir= pathDemo + 'resolver';
-const pathDaoDir= pathDemo + 'dao';
-const pathDaoEntityDir= pathDaoDir + '/entity';
-const pathDaoRepositoryDir= pathDaoDir + '/repository';
-const pathGQLDir= '../prueba/src/main/resources/graphql';
-/*-------------VARIABLES FICHEROS DIRECTORIO SERVICE--------------------*/
-var arrayEntities= ["Appears", "Character", "CharacterType", "Episode", "Friendship", "Heroes"]
-const pathAppearsServiceFile=pathServiceDir + "/" + arrayEntities[0] + "Service.java";
-const pathCharacterServiceFile=pathServiceDir + "/" + arrayEntities[1] + "Service.java";
-const pathCharacterTypeServiceFile=pathServiceDir + "/" + arrayEntities[2] + "Service.java";
-const pathEpisodeServiceFile=pathServiceDir + "/" + arrayEntities[3] + "Service.java";
-const pathFriendsServiceFile=pathServiceDir + "/" + arrayEntities[4] + "Service.java";
-const pathHeroesServiceFile=pathServiceDir + "/" + arrayEntities[5] + "Service.java";
-
-var serviceFiles = [pathFriendsServiceFile, pathHeroesServiceFile,
-    pathAppearsServiceFile, pathCharacterServiceFile,  pathEpisodeServiceFile, pathCharacterTypeServiceFile];
-/*-------------VARIABLES FICHEROS DIRECTORIO QUERY--------------------*/
-const pathQueryFile= pathQueryDir + "/Query.java";
-/*-------------VARIABLES FICHEROS DIRECTORIO MUTATION--------------------*/
-const pathMutationFile= pathMutationDir + "/Mutation.java";
-/*-------------VARIABLES FICHEROS DIRECTORIO RESOLVER--------------------*/
-const pathAppearsResolverFile= pathResolverDir + "/"+ arrayEntities[0] + "Resolver.java";
-const pathCharacterResolverFile= pathResolverDir + "/"+ arrayEntities[1] + "Resolver.java";
-const pathHeroesResolverFile= pathResolverDir + "/"+ arrayEntities[5] + "Resolver.java";
-
-var resolverFiles = [pathHeroesResolverFile, pathAppearsResolverFile, pathCharacterResolverFile];
-var resolverEnt= [arrayEntities[0],arrayEntities[1], arrayEntities[5]];
-/*-------------VARIABLES FICHEROS DIRECTORIO ENTITY--------------------*/
-const pathAppearsEntityFile= pathDaoEntityDir + "/"+ arrayEntities[0] + ".java";
-const pathCharacterEntityFile= pathDaoEntityDir + "/"+ arrayEntities[1] + ".java";
-const pathCharacterTypeEntityFile= pathDaoEntityDir + "/"+ arrayEntities[2] + ".java";
-const pathEpisodeEntityFile= pathDaoEntityDir + "/"+ arrayEntities[3] + ".java";
-const pathFriendsEntityFile= pathDaoEntityDir + "/"+ arrayEntities[4] + ".java";
-const pathHeroesEntityFile= pathDaoEntityDir + "/"+ arrayEntities[5] + ".java";
-
-var entityFiles = [pathFriendsEntityFile,pathHeroesEntityFile,pathAppearsEntityFile, pathCharacterEntityFile, 
-    pathEpisodeEntityFile,pathCharacterTypeEntityFile];
-
-
-
-
-//---------CONSTRUCCION APP---------------------------*/
-
+//---------CONSTRUCCION FICHEROS SERVIDOR---------------------------*/
 /*1. Función que inserta el texo a generar para los ficheros pertenecientes al directorio service*/
-
-//function generateService(triplesMap){
 exports.generateService= function(triplesMap){
     let serviceInit="";
     serviceInit+="package com.example.demo.service;\n"
@@ -209,16 +140,8 @@ for(var j=0;j<triplesMaps10.length;j++){
     //console.log(generateService(triplesMaps10[j]));
     //createFile(serviceFiles[i],textoService);
 }
-
-
 /*************************************************************************** */
-
-
-/*2. Crear fichero query*/
-//createDir(pathQueryDir); //directorio
-
 /** QUERY ROOT IMPLEMENTATION */
-//function generateQueryRoot(mappingDoc){
 exports.generateQueryRoot= function(mappingDoc){
     let queryInit="";
     queryInit+="package com.example.demo.query;\n";
@@ -292,9 +215,6 @@ exports.generateQueryRoot= function(mappingDoc){
 //console.log(generateQueryRoot(mappingDoc));
 //createFile(pathQueryFile, generateQueryRoot(mappingDoc));
 /****************************************************************************** */
-/*3. Crear fichero mutation*/
-//createDir(pathMutationDir); //directorio
-
 function generateMutationRoot(mappingDoc){
     let mutationInit="";
     mutationInit+="package com.example.demo.mutation;\n";
@@ -310,6 +230,7 @@ function generateMutationRoot(mappingDoc){
     var map= new Map();
     var map2= new Map();
     var map3= new Map();
+    var mapEntity1= new Map();
     var mapOneToMany= new Map();
     var mapOneToMany2= new Map();
     var mapOneToMany3= new Map();
@@ -342,14 +263,18 @@ function generateMutationRoot(mappingDoc){
                  var id2= funciones.getTemplateFromSubjMap(subjMap).templateId2;
                  if(parentClass!=null){
                     map.set(parentClass,[typeClass]);//Map con padre y clase relativa
-                    mapOneToMany.set(parentClass,[child, typeClass]); //Map con: padre--> hijo y clase a la que pertenece el hijo
+                    mapEntity1.set(parentClass,[parentCond,typeClass]);
+                    if(child!=id1){
+                        mapOneToMany.set(parentClass,[child, typeClass]); //Map con: padre--> hijo y clase a la que pertenece el hijo
+                    }else{
+                        mapOneToMany2.set(parentClass,[child,typeClass]);
+                    }
                  }
                  if(map2.has(typeClass) && id2!=null){
                     map3.set(typeClass,[child, parentClass]);// Map con: clase hija-> elemento hijo y clase padre
-                 }else if (child!=null && child!=id2){
+                 }else if (child!=null){
                      map2.set(typeClass,[child, parentClass]); // Map con: clase hija-> elemento hijo y clase padre (siguiente iteración)
-                     mapOneToMany2.set(parentClass,[child,typeClass]);
-                }
+                 }
 
                 if(child==id1 && mapOneToMany3.has(typeClass)){
                     mapOneToMany4.set(typeClass,[parentCond,parentClass])
@@ -394,20 +319,15 @@ function generateMutationRoot(mappingDoc){
     }
 
     mutationInit+="}";
-    return {mutationInit,map,map2,map3,mapOneToMany,mapOneToMany2,mapOneToMany3,mapOneToMany4};
+    return {mutationInit,map,map2,map3,mapOneToMany,mapOneToMany2,mapOneToMany3,mapOneToMany4, mapEntity1};
     
 }
 //console.log(generateMutationRoot(mappingDoc));
 //createFile(pathMutationFile, generateMutationRoot(mappingDoc).mutationInit);
 
 /************************************************************** */
-/*4. Crear directorio dao*/
-createDir(pathDaoDir); //directorio
-
-/*4.1 Crear directorio entity y fichero entity*/
-createDir(pathDaoEntityDir);
-
-//function generateEntities(triplesMap){
+/*4.1 Crear fichero entity*/
+//createDir(pathDaoEntityDir);
 exports.generateEntities= function(triplesMap){
 var textoEntity="";
 textoEntity+= "package com.example.demo.dao.entity;\n";
@@ -425,7 +345,7 @@ textoEntity+= "@Entity\n";
     typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
     textoEntity+= '@Table (name="' + typeClassLow + '_SW")\n';
     var arrayEntities=[];
-    var arrayChilds=[];
+    var idsArray=[];
     var arrayParents=[];
     let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
     for(var i=0; i<poms.length;i++){
@@ -434,20 +354,21 @@ textoEntity+= "@Entity\n";
         //var identifier= "identifier";
         var template= funciones.getTemplateFromSubjMap(subjMap).template;
         var dataType3= funciones.getTemplateFromSubjMap(subjMap).templateId; //sacar id de template (1º o unico)
-        var idsArray=[dataType3]; //array con ids de la template de la triplesMap
-        var id1= funciones.getTemplateFromSubjMap(subjMap).templateId1;
+        idsArray=[dataType3]; //templateId
         var id2= funciones.getTemplateFromSubjMap(subjMap).templateId2;
         //para que no inserte id2 nulo
         if(id2!=null && !idsArray.includes(id2)){
             idsArray.push(id2);
         }
         
-        var child= funciones.getDataTypeFromObjMap(objMap).child; //sacar columna (foreign key)
-        arrayChilds.push(child);
+        //var child= funciones.getDataTypeFromObjMap(objMap).child; //sacar columna (foreign key)
+        //arrayChilds.push(child);
+        var child=funciones.getDataTypeFromObjMap_JoinCondition(objMap).child;
         var parent=funciones.getDataTypeFromObjMap_JoinCondition(objMap).parent;//sacar tripleta padre  
         var parentSubjMap= funciones.getIdsFromTripleMap(parent).subjectMapId;
         var parentClass= funciones.getClassNameFromSubjMap(parentSubjMap);  
         arrayParents.push(parentClass); //nombres de las clases padres en arrayParents
+        var mapEntity1= generateMutationRoot(mappingDoc).mapEntity1;
         var map= generateMutationRoot(mappingDoc).map;
         var map2= generateMutationRoot(mappingDoc).map2;
         var map3= generateMutationRoot(mappingDoc).map3;
@@ -459,6 +380,11 @@ textoEntity+= "@Entity\n";
         if(!arrayEntities.includes(dataType3)){
             arrayEntities.push(dataType3);
         }
+        if(!arrayEntities.includes(child) && child!=null){
+            arrayEntities.push(child);
+        }
+        
+            
         if (dataType!=null && dataType.charAt(0)=="{"){
             var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
             for(var m=0; m<dataType2.length;m++){
@@ -470,191 +396,105 @@ textoEntity+= "@Entity\n";
          }
 
     }
-        
+
         if(map.has(typeClass) && id2!=null){
-            //inicialización de clases con composite primary key (typeClassid.java)
-            let textoEntityId= "";
-            textoEntityId+= "package com.example.demo.dao.entity;\n";
-            textoEntityId+= "import java.io.Serializable;\n";
-            textoEntityId+= "public class " + typeClass + "Id implements Serializable{\n";
-
-                for (var kAux=0; kAux<idsArray.length;kAux++){
-                    if(parentClass!=null && kAux!=0){
-                        textoEntityId+= "\tpublic " + parentClass + " "; 
-                    }else{
-                        textoEntityId+= "\tpublic String "; 
-                    }
-                    
-                    textoEntityId+= idsArray[kAux] + ";\n";
-                }
-            textoEntityId+="}\n";
-            var classAux= pathDaoEntityDir + "/" + typeClass + "Id.java";
-            //console.log(textoEntityId);
-            createFile(classAux,textoEntityId);
-            /*************************************************** */
             textoEntity+= "@IdClass(" + typeClass + "Id.class)\n";
-            textoEntity+= "public class " + typeClass + " implements Serializable{\n"
-            textoEntity+= "private static final long serialVersionUID = 1L;\n"
-            for(var k1=0; k1<idsArray.length;k1++){
-                textoEntity+= "\t@Id\n";
-                var arrayAux1= map.get(typeClass);
-                if(parentClass==null){    
-                    textoEntity+= "\tprivate String " + idsArray[k1] + ";\n\n";
-                    if(k1==0){
-                        textoEntity+= "\t@ManyToOne\n";
-                        textoEntity+= '\t@JoinColumn(name="' + idsArray[k1] + '", insertable=false, updatable=false)\n';
-                    }
-                }else if(parentClass!=null){
-
-                    textoEntity+= "\t@ManyToOne\n";
-                    textoEntity+= '\t@JoinColumn(name="' + idsArray[k1] + '")\n';
-                }
-
-                //insertar episode de appears
-                if(parentClass!=null && k1!=0){
-                    var parentLow= parentClass;
-                    parentLow= parentLow.charAt(0).toLowerCase() + parentLow.slice(1);
-                    textoEntity+= "\tprivate " + parentClass + " ";
-                    textoEntity+=  idsArray[k1] + ";\n\n";
-                }else if (k1==0 && parentClass==null){
-                    var arrayFriendsK1= map.get(typeClass);
-                    var auxType= arrayFriendsK1[k1];
-                    auxType= auxType.charAt(0).toLowerCase() + auxType.slice(1);
-                    textoEntity+= "\tprivate " + map.get(typeClass) + " " + auxType +";\n\n";
-                }else if(parentClass!=null){
-                    textoEntity+= "\tprivate " + map.get(typeClass) + " ";
-                    textoEntity+=  idsArray[k1] + ";\n\n";
-                }
-            }
-                textoEntity+= "\tpublic String getIdentifier(){\n";
-                textoEntity+= '\t\tString identifier = "' + template + '";\n';
-                textoEntity+= "\t\tidentifier+= ";
-                for (var k2=0;k2<idsArray.length;k2++){
-                    if(k2!=idsArray.length-1){
-                        if(parentClass!=null){
-                            textoEntity+= idsArray[k2];
-                        }else{
-                            var arrayFriendsK2= map.get(typeClass);
-                            //console.log(arrayFriendsK2)
-                            var auxType2= arrayFriendsK2[k2];
-                            auxType2= auxType2.charAt(0).toLowerCase() + auxType2.slice(1);
-                            textoEntity+=  auxType2;
-                        }
-                        textoEntity+= '.getId() + "/" ';    
-                    }else{
-                        if(parentClass!=null){
-                            textoEntity+= "+ " + idsArray[k2] + ".getId();\n";
-                        }else{
-                            textoEntity+= "+ " + idsArray[k2] + ";\n";
-                        }    
-                    }
-                }
-                textoEntity+= "\t\treturn identifier;\n";
-                textoEntity+= "\t}\n";
-        }else{
+        }
             textoEntity+= "public class " + typeClass + " implements Serializable{\n"
             textoEntity+= "private static final long serialVersionUID = 1L;\n\n"
             for (var k3=0; k3<arrayEntities.length;k3++){
                 if(k3==0){
+                    textoEntity+="\t@Id\n";
+                }else if(map.has(typeClass) && id2!=null){
                     textoEntity+="\t@Id\n";
                 }
                     textoEntity+= '\t@Column(name="' + arrayEntities[k3] + '")\n'; 
                     textoEntity+= "\tprivate String " + arrayEntities[k3] + ";\n\n";
                 }
 
-                //para insertar columna episodeid en heroes y typeid en Character
-                if(map2.has(typeClass)){
-                    var arrayFinal = map2.get(typeClass);
-                    for(var k4=0; k4<arrayFinal.length;k4++){
-                        if(k4!=arrayFinal.length-1){
-                            textoEntity+= "\t@ManyToOne\n";
-                            textoEntity+= '\t@JoinColumn(name="' + arrayFinal[k4] + '"';
-                            if(dataType3== arrayFinal[k4]){
-                                textoEntity+=", insertable = false, updatable = false";
-                            }
-                            textoEntity+=")\n";
-                        }else{
-                            if(id2!=null){
-                                var auxLower=arrayFinal[k4];
-                                auxLower= auxLower.charAt(0).toLowerCase() + auxLower.slice(1);
-                                textoEntity+= "\tprivate " + arrayFinal[k4] + " " + auxLower + ";\n\n";
+                /*CASOS MANY TO ONE*/
+                //console.log(idsArray);
+                //console.log(mapOneToMany2);
+                if(id2!=null){
+                    for(var i2=0; i2<idsArray.length;i2++){
+                        /**CASO FRIENDSHIP Y APPEARS */
+                        if(mapEntity1.has(typeClass)){
+                            var arrayMap= mapEntity1.get(typeClass);
+                            if(arrayMap.includes(idsArray[i2])){
+                                for(var i3=0; i3<arrayMap.length;i3++){
+                                    if(i3==0){
+                                        textoEntity+= "\t@ManyToOne\n";
+                                        textoEntity+= '\t@JoinColumn(name="' + arrayMap[i3] + '", insertable=false, updatable=false)\n';
+                                    }else{
+                                        var low= arrayMap[i3];
+                                        low= low.charAt(0).toLowerCase() + low.slice(1);
+                                        textoEntity+= "\tprivate " + arrayMap[i3] + " " + low + ";\n\n";
+                                    }
+                                }
                             }else{
-                                textoEntity+= "\tprivate " + arrayFinal[k4] + " " + arrayFinal[k4-1] + ";\n\n";
+                                /**CASO APPEARS: Columna EPISODEID */
+                                var arrayMap2= map2.get(typeClass);
+                                if(arrayMap2!=null)
+                                for(var i4=0; i4<arrayMap2.length;i4++){
+                                    if(i4==0){
+                                        textoEntity+= "\t@ManyToOne\n";
+                                        textoEntity+= '\t@JoinColumn(name="' + arrayMap2[i4] + '", insertable=false, updatable=false)\n';
+                                    }else{
+                                        var low= arrayMap2[i4];
+                                        low= low.charAt(0).toLowerCase() + low.slice(1);
+                                        textoEntity+= "\tprivate " + arrayMap2[i4] + " " + low + ";\n\n";
+                                    }
+                                }
+                            }
+                        }else{
+                            /**CASO HEROES */
+                            if(map2.has(typeClass) || map3.has(typeClass)){
+                                var arrayMap2= map2.get(typeClass);
+                                var arrayMap3= map3.get(typeClass);
+                                if(arrayMap2.includes(idsArray[i2])){
+                                    for(var i4=0; i4<arrayMap2.length;i4++){
+                                        if(i4==0){
+                                            textoEntity+= "\t@ManyToOne\n";
+                                            textoEntity+= '\t@JoinColumn(name="' + arrayMap2[i4] + '", insertable=false, updatable=false)\n';
+                                        }else{
+                                            var low= arrayMap2[i4];
+                                            low= low.charAt(0).toLowerCase() + low.slice(1);
+                                            textoEntity+= "\tprivate " + arrayMap2[i4] + " " + low + ";\n\n";
+                                        }
+                                    }
+                                } else if(arrayMap3.includes(idsArray[i2])){
+                                    for(var i5=0; i5<arrayMap3.length;i5++){
+                                        if(i5==0){
+                                            textoEntity+= "\t@ManyToOne\n";
+                                            textoEntity+= '\t@JoinColumn(name="' + arrayMap3[i5] + '", insertable=false, updatable=false)\n';
+                                        }else{
+                                            var low= arrayMap3[i5];
+                                            low= low.charAt(0).toLowerCase() + low.slice(1);
+                                            textoEntity+= "\tprivate " + arrayMap3[i5] + " " + low + ";\n\n";
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                }
-
-                //para insertar columna charid en Heroes
-                if (map3.has(typeClass)){
-                    var arrayFinal2 = map3.get(typeClass);
-                    for(var k5=0; k5<arrayFinal2.length;k5++){
-                        if(k5==0){
-                            textoEntity+= "\t@ManyToOne\n";
-                            textoEntity+= '\t@JoinColumn (name="' + arrayFinal2[k5] + '"';
-                            textoEntity+=")\n";
-                        }else{
-                            var low3= arrayFinal2[k5];
-                            low3= low3.charAt(0).toLowerCase() + low3.slice(1);
-                            textoEntity+= "\tprivate " + arrayFinal2[k5] + " " + idsArray[k5] + ";\n\n";
-                        }
-                    }
-                }
-
+                }else{
                 /**CASOS ONE TO MANY */
-                if(mapOneToMany1.has(typeClass)){
-                    var arrayOneToMany= mapOneToMany1.get(typeClass);
-                    for(var w=0; w<arrayOneToMany.length;w++){
-                        if(w==0){
-                            textoEntity+= '\t@OneToMany(mappedBy="' + arrayOneToMany[w] + '")\n';
-                        }else{
-                            var aux= arrayOneToMany[w];
-                            aux= aux.charAt(0).toLowerCase() + aux.slice(1);
-                            textoEntity+= "\tprivate List <" + arrayOneToMany[w] + "> " + aux + ";\n\n";
-                        }
-                    }
-                
-                if(mapOneToMany2.has(typeClass)){
-                    var arrayOneToMany2= mapOneToMany2.get(typeClass);
-                    for(var w=0; w<arrayOneToMany2.length;w++){
-                        if(arrayOneToMany[arrayOneToMany.length-1] != arrayOneToMany2[arrayOneToMany2.length-1]){
+                var mapsOnetoMany=[mapOneToMany1, mapOneToMany2, mapOneToMany3, mapOneToMany4];
+                for(var k=0;k<mapsOnetoMany.length;k++){
+                    if(mapsOnetoMany[k].has(typeClass)){
+                        var arrayOneToMany= mapsOnetoMany[k].get(typeClass);
+                        for(var w=0; w<arrayOneToMany.length;w++){
                             if(w==0){
-                                textoEntity+= '\t@OneToMany(mappedBy="' + arrayOneToMany2[w] + '")\n';
+                                textoEntity+= '\t@OneToMany(mappedBy="' + arrayOneToMany[w] + '")\n';
                             }else{
-                                var aux= arrayOneToMany2[w];
+                                var aux= arrayOneToMany[w];
                                 aux= aux.charAt(0).toLowerCase() + aux.slice(1);
-                                textoEntity+= "\tprivate List <" + arrayOneToMany2[w] + "> " + aux + ";\n\n";
+                                textoEntity+= "\tprivate List <" + arrayOneToMany[w] + "> " + aux + ";\n\n";
                             }
                         }
                     }
                 }
-
-                if(mapOneToMany3.has(typeClass)){
-                    var arrayOneToMany3= mapOneToMany3.get(typeClass);
-                    for(var w=0; w<arrayOneToMany3.length;w++){
-                        if(w==0){
-                            textoEntity+= '\t@OneToMany(mappedBy="' + arrayOneToMany3[w] + '")\n';
-                        }else{
-                            var aux= arrayOneToMany3[w];
-                            aux= aux.charAt(0).toLowerCase() + aux.slice(1);
-                            textoEntity+= "\tprivate List <" + arrayOneToMany3[w] + "> " + aux + ";\n\n";
-                        }
-                    }
-                }
-
-                if(mapOneToMany4.has(typeClass)){
-                    var arrayOneToMany4= mapOneToMany4.get(typeClass);
-                    for(var w=0; w<arrayOneToMany4.length;w++){
-                        if(w==0){
-                            textoEntity+= '\t@OneToMany(mappedBy="' + arrayOneToMany4[w] + '")\n';
-                        }else{
-                            var aux= arrayOneToMany4[w];
-                            aux= aux.charAt(0).toLowerCase() + aux.slice(1);
-                            textoEntity+= "\tprivate List <" + arrayOneToMany4[w] + "> " + aux + ";\n\n";
-                        }
-                    }
-                }
-        }
+            }
 
                 /***IDENTIFIER PARA RESTO DE CLASES DISTINTAS DE FRIENDSHIP y CHARACTER*/
                 textoEntity+= "\tpublic String getIdentifier(){\n";
@@ -664,19 +504,12 @@ textoEntity+= "@Entity\n";
                     if(k2!=idsArray.length-1){
                         textoEntity+=  idsArray[k2] + ' + "/" + ';
                     }else{
-                        if(map3.has(typeClass)){
-                            var arrayFinal3= map3.get(typeClass);
-                            var low3= arrayFinal3[k2];
-                            low3= low3.charAt(0).toLowerCase() + low3.slice(1);
-                            textoEntity+= idsArray[k2] + ".getId();\n";
-                        }else{
-                            textoEntity+=  idsArray[k2] + ";\n";
-                        }
+                        textoEntity+=  idsArray[k2] + ";\n";
                     }
                 }
                 textoEntity+= "\t\treturn identifier;\n";
                 textoEntity+= "\t}\n";
-        }
+        
         textoEntity+="}\n";
         return textoEntity;
 }
@@ -686,9 +519,8 @@ for(var j=0;j<triplesMaps2.length;j++){
     //console.log(this.generateEntities(triplesMaps2[j]));
     //createFile(entityFiles[j],generateEntities(triplesMaps2[j]));
 }
-*/
+
 /*4.2 Crear directorio y fichero repository*/
-//createDir(pathDaoRepositoryDir); //directorio
 exports.generateRepositories= function(triplesMap){
     var textoRepository="";
     textoRepository+= "package com.example.demo.dao.repository;\n";
@@ -708,16 +540,14 @@ exports.generateRepositories= function(triplesMap){
         for(var i=0; i<poms.length;i++){
             let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
             var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
+            var parent= funciones.getDataTypeFromObjMap_JoinCondition(objMap).parent;
             var id1= funciones.getTemplateFromSubjMap(subjMap).templateId;
             var id2= funciones.getTemplateFromSubjMap(subjMap).templateId2;
             idsTemplate.push(id1);
             idsTemplate.push(id2);
-            var parent=funciones.getDataTypeFromObjMap_JoinCondition(objMap).parent;
-            var parentSubjMap= funciones.getIdsFromTripleMap(parent).subjectMapId;
-            var parentClass= funciones.getClassNameFromSubjMap(parentSubjMap);
-            if(id2==null && !arrayRepositories.includes(id1)){
+            /*if(parent==null){
                 arrayRepositories.push(id1);
-            }
+            }*/
             if (dataType!=null && dataType.charAt(0)=="{"){
                 var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
                 for(var m=0; m<dataType2.length;m++){
@@ -733,9 +563,7 @@ exports.generateRepositories= function(triplesMap){
             var mapOneToMany2= generateMutationRoot(mappingDoc).mapOneToMany2;
             if(arrayRepositories.length>0){
             textoRepository+= "List <" + typeClass + "> findAllBy";
-            var k;
-            if(id2!=null){ k=0; k2=0;}else{k=1;k2=1}
-            for (k; k<arrayRepositories.length;k++){
+            for (var k=0; k<arrayRepositories.length;k++){
                 var repositoryUpper= arrayRepositories[k];
                 repositoryUpper= repositoryUpper.charAt(0).toUpperCase() + repositoryUpper.slice(1);
                     if(k!=arrayRepositories.length-1){
@@ -745,7 +573,7 @@ exports.generateRepositories= function(triplesMap){
                 }
             }
             textoRepository+="(";
-            for (var k2; k2<arrayRepositories.length;k2++){
+            for (var k2=0; k2<arrayRepositories.length;k2++){
                 textoRepository+= "String ";
                 if(k2!=arrayRepositories.length-1){
                     textoRepository+= arrayRepositories[k2] + ", ";
@@ -756,18 +584,17 @@ exports.generateRepositories= function(triplesMap){
         }   
             //console.log(map);
             //console.log(mapOneToMany2);  
+
+            if(!arrayRepositories.includes(id1) && parent==null){
+                arrayRepositories.push(id1);
+            }
+
             if(map.has(typeClass)){
                 var textoRepositoryTemplate="List <" + typeClass + "> findAllBy";
                 var arrayLast= map.get(typeClass);
                 for(var m=0; m<arrayLast.length;m++){
                     textoRepository+= textoRepositoryTemplate;
-                    if(parentClass!=null){
-                        var tempid1= id1;
-                        tempid1= tempid1.charAt(0).toUpperCase() + tempid1.slice(1);
-                        textoRepository+= tempid1;
-                    }else{
-                        textoRepository+= arrayLast[m];
-                    }
+                    textoRepository+= arrayLast[m];
                     var typeClassLow= arrayLast[m];
                     typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
                     textoRepository+= "(" + arrayLast[m] + " " + typeClassLow + ");\n";
@@ -775,24 +602,15 @@ exports.generateRepositories= function(triplesMap){
                     //inserción de findBy necesarios para friendship y appears
                     if(id2!=null){
                         textoRepository+= textoRepositoryTemplate;
-                        if(parentClass!=null){
-                            var tempid1= id1;
-                            tempid1= tempid1.charAt(0).toUpperCase() + tempid1.slice(1);
-                            var tempid2= id2;
-                            tempid2= tempid2.charAt(0).toUpperCase() + tempid2.slice(1);
-                            var id= id1;
-                            id= id.slice(id.indexOf('i'));
-                            id= id.charAt(0).toUpperCase() + id.slice(1);
-                            textoRepository+= tempid1 + "And" + tempid1 + id + "And" + tempid2 + id + "(";
-                        }else{
-                            var id1Upper= id1;
-                            var id2Upper=id2;
-                            id1Upper= id1Upper.charAt(0).toUpperCase() + id1Upper.slice(1);
-                            id2Upper= id2Upper.charAt(0).toUpperCase() + id2Upper.slice(1);
-                            textoRepository+= arrayLast[m] + "And" + id1Upper+ "And" + id2Upper + "(";
-                        }
+                        var id1Upper= id1;
+                        var id2Upper=id2;
+                        id1Upper= id1Upper.charAt(0).toUpperCase() + id1Upper.slice(1);
+                        id2Upper= id2Upper.charAt(0).toUpperCase() + id2Upper.slice(1);
+                        textoRepository+= arrayLast[m] + "And" + id1Upper+ "And" + id2Upper + "(";
                         textoRepository+= arrayLast[m] + " " + typeClassLow + ",String " + id1 + "," + "String " + id2 + ");\n";
                     }
+
+                    //inserción del resto de findBy necesarios en cada entidad
                     for(var k3=0; k3<arrayRepositories.length;k3++){
                         textoRepository+= textoRepositoryTemplate + arrayLast[m];
                         var typeClassUp= arrayRepositories[k3];
@@ -806,7 +624,7 @@ exports.generateRepositories= function(triplesMap){
                 if(mapOneToMany2.has(typeClass)){
                     var textoRepositoryTemplate="List <" + typeClass + "> findAllBy";
                     var arrayLast= mapOneToMany2.get(typeClass);
-                    if(mapOneToMany2.get(typeClass)[1]!= map.get(typeClass)){
+                    if(arrayLast[1]!= map.get(typeClass)){
                     for(var m=1; m<arrayLast.length;m++){
                         var typeClassLow= arrayLast[m];
                         typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
@@ -823,19 +641,19 @@ exports.generateRepositories= function(triplesMap){
                 }
               }
             }
-        }
+            }
             textoRepository+="}\n";
             return textoRepository;
     }
     /*
     let triplesMaps3= funciones.getTriplesId();
     for(var l=0;l<triplesMaps3.length;l++){
-        //console.log(this.generateRepositories(triplesMaps3[l]));
+        console.log(this.generateRepositories(triplesMaps3[l]));
         //createFile(repositoryFiles[l],generateRepositories(triplesMaps3[l]));
     }
-/*5.Crear archivo graphqls y su directorio*/
-//createDir(pathGQLDir);
 
+/*5.Crear archivo graphqls (SCHEMA)*/
+/**5.1 Generar Types de SCHEMA */
 function generateType(triplesMap){
     let textoType="";
     let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
@@ -901,7 +719,7 @@ function generateType(triplesMap){
         return {textoType,arrayType};
 }
 
-
+/**5.2 Generar Query de SCHEMA */
 function generateQuery(triplesMap){
     let querySchema="";
     let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
@@ -939,44 +757,6 @@ function generateQuery(triplesMap){
         querySchema+= "[" + typeClass + "]";
         return querySchema;
 }
-/*
-function generateMutation(triplesMap){
-    let mutationSchema="";
-    let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
-    let typeClass= funciones.getClassNameFromSubjMap(subjMap);
-    var arrayMutation=[];
-    let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
-    for(var i=0; i<poms.length;i++){
-        let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
-        var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
-       // var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
-        var identifier= "identifier";            
-        //para que solo haya un único id en array de datos de cada entidad
-        if(!arrayMutation.includes(identifier)){
-            arrayMutation.push(identifier);
-        }
-        if (dataType!=null && dataType.charAt(0)=="{"){
-            var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
-            for(var m=0; m<dataType2.length;m++){
-                dataType= dataType2[m];
-                arrayMutation.push(dataType);
-            }
-        }else if(dataType!=null && !arrayMutation.includes(dataType) && dataType.charAt(0)!="{"){
-            arrayMutation.push(dataType);
-         }
-
-    }
-        mutationSchema+= "\t create" + typeClass + "(";
-        for (var k= 0;k<arrayMutation.length;k++){
-            if(k!=arrayMutation.length-1){
-                mutationSchema+= arrayMutation[k] + ": String, ";
-            }else{
-                mutationSchema+= arrayMutation[k] + ": String):";
-            }
-        }
-        mutationSchema+= typeClass;
-        return mutationSchema;
-}*/
 
 exports.generateSchema= function(){
 var texto="";
@@ -992,23 +772,54 @@ for(var m=0;m<triplesMaps.length;m++){
     //console.log(generateQuery(triplesMaps[m]));
 }
 texto+="}\n";
-/*texto+= "\ntype Mutation {\n";
-for(var n=0;n<triplesMaps.length;n++){
-    texto+=generateMutation(triplesMaps[n]) + "\n";
-    //console.log(generateMutation(triplesMaps[n]));
-}*/
 return texto;
 }
 
 //console.log(this.generateSchema());
-//createFile(pathGQLFile,texto);
-
-/*6. Crear ficheros correspondientes al Resolver (van a implementar funciones Auxiliares: type, AppearsIn, Episode, hero)*/
-createDir(pathResolverDir);
-exports.hasRelationship=function(triplesMap){
-    var related=false;
+/**6.1 Comprobación de ficheros que deberían tener idClass*/
+exports.hasIdClass=function(triplesMap){
+    var hasIdClass=false;
     let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
     let typeClass= funciones.getClassNameFromSubjMap(subjMap);
+    let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
+    for(var i=0; i<poms.length;i++){
+        let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
+        var id2= funciones.getTemplateFromSubjMap(subjMap).templateId2;
+        var map= generateMutationRoot(mappingDoc).map;
+        if(map.has(typeClass) && id2!=null){
+            hasIdClass=true;
+        }
+    }
+    return hasIdClass;
+}
+
+/*6.2 Crear ficheros correspondientes a las entidades con composite PK*/
+exports.generateIdClass= function(triplesMap){
+    let textoEntityId= "";
+    textoEntityId+= "package com.example.demo.dao.entity;\n";
+    textoEntityId+= "import java.io.Serializable;\n";
+    let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
+    let typeClass= funciones.getClassNameFromSubjMap(subjMap);
+    textoEntityId+= "public class " + typeClass + "Id implements Serializable{\n";
+    let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
+    var idsArray=[];
+    for(var i=0; i<poms.length;i++){
+        //let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
+        var id2= funciones.getTemplateFromSubjMap(subjMap).templateId2;
+        var id1= funciones.getTemplateFromSubjMap(subjMap).templateId;
+    }
+    idsArray=[id1,id2];
+    for (var k=0; k<idsArray.length;k++){         
+        textoEntityId+="\tpublic String "+ idsArray[k] + ";\n";
+    }
+    
+    textoEntityId+="}\n";
+    return textoEntityId;
+}
+
+/**7.1 Comprobar ficheros tienen relación para luego generar los resolvers correspondientes */
+exports.hasRelationship=function(triplesMap){
+    var related=false;
     let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
     for(var i=0; i<poms.length;i++){
         let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
@@ -1021,7 +832,7 @@ exports.hasRelationship=function(triplesMap){
     return related;
 }
 
-//function generateResolver(triplesMap){
+/**7.2 Crear ficheros correspondientes al Resolver (van a implementar funciones Auxiliares: type, AppearsIn, Episode, hero)*/
 exports.generateResolver= function(triplesMap){
     var textoResolver="";
     textoResolver+= "package com.example.demo.resolver;\n";
@@ -1081,8 +892,7 @@ exports.generateResolver= function(triplesMap){
             parentTriples.push(parent); // insertar padre en array de parents de la tripleta correspondiente
             aux2.push(funcionesAux); //guardar funciones auxiliares (appearsIn, episode, hero,type) 
         }
-
-        var map4= generateMutationRoot(mappingDoc).mapOneToMany;
+        //var map4= generateMutationRoot(mappingDoc).mapOneToMany;
         for(var j=0; j<parents.length;j++){
             var parentLow= parents[j];
             parentLow= parentLow.charAt(0).toLowerCase() + parentLow.slice(1);
@@ -1120,6 +930,8 @@ exports.generateResolver= function(triplesMap){
                     textoResolver+= "final String " + arrayFinal[m2] + "){\n"
                 }
             }
+            //console.log(map3);
+            //console.log(map);
             textoResolver+= "\t\tList<" + parents[m] + "> join = new ArrayList<" + parents[m] + ">();\n";
             for(var m3=0; m3<arrayFinal.length;m3++){
                 var parentLow= parents[m];
@@ -1136,26 +948,18 @@ exports.generateResolver= function(triplesMap){
                     textoResolver+= "\t\t\t\tString id2=" + arrayFinal[m3] + ".substring(" + arrayFinal[m3] + ".lastIndexOf('/') + 1,";
                     textoResolver+=  arrayFinal[m3] + ".length());\n";
                     textoResolver+= "\t\t\t\tjoin=" + parentLow + "Repository.findAllBy";
-                        if(!map2.has(parents[m])){
-                            var parentId1=map3.get(parents[m]);
-                            var parentId2= map.get(parents[m]);
-                            var auxParent= parentId2[m3];
-                            auxParent= auxParent.charAt(0).toUpperCase() + auxParent.slice(1); 
-                            parentId1= parentId1.charAt(0).toUpperCase() + parentId1.slice(1);
-                            textoResolver+= parentId1 + "And" + parentId1 + auxId +  "And" + auxParent + auxId;
-                        }else{
-                            textoResolver+= typeClass + "And";
-                            for(var m4=arrayFinal.length-1;m4>0;m4--){
-                                var elementUpper2= arrayFinal[m4];
-                                elementUpper2= elementUpper2.charAt(0).toUpperCase() + elementUpper2.slice(1);
-                                if(m4!=1){
-                                    textoResolver+= elementUpper2 + "And";
-                                }else{
-                                    textoResolver+= elementUpper2;
-                                }
-                            }
-                            
-                        }
+                    textoResolver+= typeClass + "And";
+                    if(map3.has(parents[m])){
+                        var arrayAux= map3.get(parents[m]);
+                        arrayAux= arrayAux.charAt(0).toUpperCase() + arrayAux.slice(1);
+                        textoResolver+= arrayAux;
+                    }
+                    var arrayAux2= map.get(parents[m]);
+                    for (var last in arrayAux2){
+                        var aux4=arrayAux2[last];
+                        aux4=aux4.charAt(0).toUpperCase() + aux4.slice(1);
+                        textoResolver+= "And" +aux4;
+                    }
                         textoResolver+= "(" + typeClassLow + ",id1,id2);\n";
                        
                     }else{
@@ -1173,14 +977,7 @@ exports.generateResolver= function(triplesMap){
 
             textoResolver+= "\t\t\t}else{\n";
             textoResolver+= "\t\t\t\tjoin=" + parentLow + "Repository.findAllBy" ;
-            if(idsArray==map3.get(parents[m]) && map3.has(parents[m])){
-                var auxUpper= map3.get(parents[m]);
-                auxUpper= auxUpper.charAt(0).toUpperCase() + auxUpper.slice(1);
-                textoResolver+= auxUpper;
-            }else{
-               textoResolver+=typeClass;
-            }
-            textoResolver+= "(" + typeClassLow + ");\n"; 
+            textoResolver+= typeClass+ "(" + typeClassLow + ");\n"; 
             textoResolver+="\t\t\t}\n";
             textoResolver+="\t\t\treturn join;\n";
             textoResolver+="\t\t}\n\n";
@@ -1190,14 +987,6 @@ exports.generateResolver= function(triplesMap){
 }
     /*
      let triplesMaps4= funciones.getTriplesId();
-     var resolvers=[];
-     for(var i=0; i<triplesMaps4.length;i++){
-         if(triplesMaps4[i]=='file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMAppears' ||
-         triplesMaps4[i]=='file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMCharacters' ||
-         triplesMaps4[i]=='file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMHeroes'){
-            resolvers.push(triplesMaps4[i]);
-         }
-     }
       for (var j=0;j<triplesMaps4.length;j++){
         //createFile(resolverFiles[i],textoResolver);
         //console.log(triplesMaps4[j]+ ":" + this.hasRelationship(triplesMaps4[j]))
