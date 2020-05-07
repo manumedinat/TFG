@@ -1,5 +1,5 @@
 /* Referencia a fs y fichero funciones*/
-const funciones= require('../R2RML/funciones_ttl');
+const funciones= require('./funciones_ttl');
 const fs=require('fs');
 /*Referencia a fichero de mappeo*/
 var fileMapping= fs.readFileSync("./mappings.r2rml.json"); //leer fichero en formato utf8
@@ -997,7 +997,7 @@ exports.generateResolver= function(triplesMap){
 
 /*7. Añadir dependencias graphql y lombok a pom.xml */
 exports.getPom=function(){
-var str =`
+/*var str =`
     <dependency>
        <groupId>com.graphql-java</groupId>
        <artifactId>graphql-spring-boot-starter</artifactId>
@@ -1024,6 +1024,85 @@ var str =`
        <version>1.18.8</version>
        <optional>true</optional>
    </dependency>\n`;
+   */
+var str= 
+`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.2.4.RELEASE</version>
+    <relativePath/>
+  </parent>
+  <groupId>demo</groupId>
+  <artifactId>demo</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>demo</name>
+  <description>Demo project for Spring Boot</description>
+  <properties>
+    <java.version>1.8</java.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+  </dependency> 
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+ <dependency>
+    <groupId>com.graphql-java</groupId>
+    <artifactId>graphql-spring-boot-starter</artifactId>
+    <version>5.0.2</version>
+ </dependency>
+ <dependency>
+    <groupId>com.graphql-java</groupId>
+    <artifactId>graphql-java-tools</artifactId>
+    <version>5.2.4</version>
+ </dependency>
+ <dependency>
+    <groupId>com.graphql-java</groupId>
+    <artifactId>graphiql-spring-boot-starter</artifactId>
+    <version>5.0.2</version>
+ </dependency>
+ <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <scope>runtime</scope>
+</dependency>
+ <dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.8</version>
+    <optional>true</optional>
+  </dependency>  
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>`;
    return str;
 }
 /*9. Añadir especificaciones a application.properties*/

@@ -1,6 +1,6 @@
 /**Referencia a clase con generación de Templates */
-const server= require('../R2RML/index');
-const funciones= require('../R2RML/funciones_ttl');
+const server= require('./index');
+const funciones= require('./funciones_ttl');
 /*Mecanismo para generar ficheros y directorios*/
 const fs=require('fs');
 const createDir=(dirPath)=>{
@@ -31,7 +31,6 @@ var mappingDoc=jsonFile;
 const pathDemo='../prueba/src/main/java/com/example/demo/';
 const pathServiceDir= pathDemo + 'service';
 const pathQueryDir= pathDemo + 'query';
-const pathMutationDir= pathDemo + 'mutation';
 const pathResolverDir= pathDemo + 'resolver';
 const pathDaoDir= pathDemo + 'dao';
 const pathDaoEntityDir= pathDaoDir + '/entity';
@@ -48,28 +47,20 @@ const pathQueryFile= pathQueryDir + "/Query.java";
 createFile(pathAppPtyFile, server.getApplicationProperties());
 
 /**2. Generar fichero pom.xml */
-var addPom=server.getPom();
-fs.readFile(pathPom, function read(err, data) {
-if (err) {
-    throw err;
-}
-var file_content = data.toString();
-var position= file_content.lastIndexOf("y");
-file_content = file_content.substring(position+2);
-var file = fs.openSync(pathPom,'r+');
-var bufferedText = new Buffer(addPom+file_content);
-fs.writeSync(file, bufferedText, 0, bufferedText.length, position+2);
-fs.close(file);
-});
+createFile(pathPom, server.getPom());
 
 /**3. Generar QueryRoot */
 createDir(pathQueryDir); // crear directorio de query
 createFile(pathQueryFile, server.generateQueryRoot(mappingDoc)); //crear fichero query
 
 /**4. Generar Resources (Entity, Repository) */
+
+/*4.1 Creación de los directorios*/ 
 createDir(pathDaoEntityDir); //crear directorio de todas las entidades
 createDir(pathDaoRepositoryDir); // crear directorio de todos los repositorios
 createDir(pathResolverDir); //crear directorio de los resolvers correspondientes a las entidades relacionales 
+createDir(pathServiceDir);
+
 let triplesMaps= funciones.getTriplesId();
 for(var i=0;i<triplesMaps.length;i++){
     let subjMap= funciones.getIdsFromTripleMap(triplesMaps[i]).subjectMapId;
