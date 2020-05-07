@@ -1,0 +1,41 @@
+package com.example.demo.dao.entity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.List;
+@Data
+@EqualsAndHashCode
+@Entity
+@Table (name="character_SW")
+public class Character implements Serializable{
+private static final long serialVersionUID = 1L;
+
+	@Id
+	@Column(name="id")
+	private String id;
+
+	@Column(name="typeid")
+	private String typeid;
+
+	@Column(name="fname")
+	private String fname;
+
+	@Column(name="lname")
+	private String lname;
+
+	@OneToMany(mappedBy="charid")
+	private List <Heroes> heroes;
+
+	@OneToMany(mappedBy="id")
+	private List <Friendship> friendship;
+
+	@OneToMany(mappedBy="charid")
+	private List <Appears> appears;
+
+	public String getIdentifier(){
+		String identifier = "http://starwars.mappingpedia.linkeddata.es/character/";
+		identifier+= id;
+		return identifier;
+	}
+}
