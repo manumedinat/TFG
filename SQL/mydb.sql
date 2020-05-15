@@ -23,8 +23,8 @@ DROP TABLE IF EXISTS `appears_sw`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `appears_sw` (
-  `episodeid` varchar(255) NOT NULL,
   `charid` varchar(255) NOT NULL,
+  `episodeid` varchar(255) NOT NULL,
   PRIMARY KEY (`charid`,`episodeid`),
   KEY `FKpnll5ygw587rw7uorhis2ufu3` (`episodeid`),
   CONSTRAINT `FK9lne3dfaqwu34htdscipljful` FOREIGN KEY (`charid`) REFERENCES `character_sw` (`id`),
@@ -38,7 +38,7 @@ CREATE TABLE `appears_sw` (
 
 LOCK TABLES `appears_sw` WRITE;
 /*!40000 ALTER TABLE `appears_sw` DISABLE KEYS */;
-INSERT INTO `appears_sw` VALUES ('4','1000'),('4','1001'),('4','1002'),('4','2000'),('4','2001'),('5','1000'),('5','1001'),('5','1002'),('5','2000'),('5','2001'),('6','1000'),('6','1001'),('6','1002'),('6','2000'),('6','2001');
+INSERT INTO `appears_sw` VALUES ('1000','4'),('1001','4'),('1002','4'),('2000','4'),('2001','4'),('1000','5'),('1001','5'),('1002','5'),('1003','5'),('2000','5'),('2001','5'),('1000','6'),('1001','6'),('1002','6'),('1003','6'),('2001','6');
 /*!40000 ALTER TABLE `appears_sw` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -66,7 +66,7 @@ CREATE TABLE `character_sw` (
 
 LOCK TABLES `character_sw` WRITE;
 /*!40000 ALTER TABLE `character_sw` DISABLE KEYS */;
-INSERT INTO `character_sw` VALUES ('1000','Luke','Skywalker','H'),('1001','Darth','Vader','H'),('1002','Han','Solo','H'),('2000','R2','D2','D'),('2001','C3','PO','D');
+INSERT INTO `character_sw` VALUES ('1000','Luke','Skywalker','H'),('1001','Darth','Vader','H'),('1002','Han','Solo','H'),('1003','Leia','Skywalker','H'),('2000','R2','D2','D'),('2001','C3','PO','D');
 /*!40000 ALTER TABLE `character_sw` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -114,7 +114,7 @@ CREATE TABLE `episode_sw` (
 
 LOCK TABLES `episode_sw` WRITE;
 /*!40000 ALTER TABLE `episode_sw` DISABLE KEYS */;
-INSERT INTO `episode_sw` VALUES ('4','NewHope'),('5','EmpireStrikesBack'),('6','ReturnOfTheJedi');
+INSERT INTO `episode_sw` VALUES ('4','NewHope'),('5','Empire'),('6','Jedi');
 /*!40000 ALTER TABLE `episode_sw` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -126,8 +126,8 @@ DROP TABLE IF EXISTS `friendship_sw`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `friendship_sw` (
-  `id` varchar(255) NOT NULL,
   `fid` varchar(255) NOT NULL,
+  `id` varchar(255) NOT NULL,
   PRIMARY KEY (`fid`,`id`),
   KEY `FK7cglxx1dr47g899ywtxpull59` (`id`),
   CONSTRAINT `FK7cglxx1dr47g899ywtxpull59` FOREIGN KEY (`id`) REFERENCES `character_sw` (`id`),
@@ -141,7 +141,7 @@ CREATE TABLE `friendship_sw` (
 
 LOCK TABLES `friendship_sw` WRITE;
 /*!40000 ALTER TABLE `friendship_sw` DISABLE KEYS */;
-INSERT INTO `friendship_sw` VALUES ('1000','1001'),('1000','2001'),('1001','1002'),('1002','2000'),('2000','2001');
+INSERT INTO `friendship_sw` VALUES ('1001','1000'),('1002','1000'),('1003','1000'),('1000','1001'),('1000','1002'),('2000','1002'),('1000','1003'),('2000','1003'),('1002','2000'),('1003','2000'),('2001','2000'),('2000','2001');
 /*!40000 ALTER TABLE `friendship_sw` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -181,4 +181,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-04-23 12:12:32
+-- Dump completed on 2020-05-15 13:48:23
