@@ -1,5 +1,6 @@
 # TFG
 R2RML to GraphQL
+
 NOTES: Para poder ejecutar esta herramienta, se necesita tener instalado los siguientes componentes:
   - JDK 1.8
   - Node.js
