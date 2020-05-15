@@ -1,5 +1,8 @@
 # TFG
 R2RML to GraphQL
+NOTES: Para poder ejecutar esta herramienta, se necesita tener instalado los siguientes componentes:
+  - JDK 1.8
+  - Node.js
 
 Funcionalidades:
 
@@ -22,6 +25,6 @@ Pasos a seguir para ejecutar el servidor:
 - Si se usa usuario root, no hace falta cambiarlo.
 - Si se usa otra contraseña (o ninguna), cambiar el parámetro 'spring.datasource.password' por la que se utilice en MySQL.
 
-3. Ejecutar fichero 'ServerGenerator.js' de la carpeta 'R2RML'
+3. Importar la BBDD almacenada en la carpeta 'SQL' para la inserción de los datos en las tablas correspondientes.
 4. Acceder a la carpeta server y ejecutar el siguiente comando: ./mvnw spring-boot:run
 5. Ir a localhost:8080/graphiql y realizar las consultas que se requiera
