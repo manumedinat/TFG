@@ -1,8 +1,6 @@
 mkdir server
-cd server
-call npm install
-call npm install -g yo
-call npm install -g generator-spring-initializr
-call yo spring-initializr
-cd ../generator
+cd generator
+call npm i fs
+call npm i unzipper
+node projectTemplate.js
 node ServerGenerator.js
