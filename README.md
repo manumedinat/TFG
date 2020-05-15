@@ -12,11 +12,11 @@ Carpeta 'server': A partir de fichero 'DemoApplication.java', se arranca Spring 
 
 Carpeta 'generator': 
 
-  -Fichero 'funciones_ttl.js' con las funciones para tratar el JSON a partir de un fichero *.ttl
+  - Fichero 'funciones_ttl.js' con las funciones para tratar el JSON a partir de un fichero *.ttl
 
-  -Fichero 'index.js' por el cual se genera los ficheros que componen el servidor
+  - Fichero 'index.js' por el cual se genera los ficheros que componen el servidor
   
-  -Fichero 'ServerGenerator.js' con el que se genera el servidor de Java
+  - Fichero 'ServerGenerator.js' con el que se genera el servidor de Java
 
 
 Pasos a seguir para ejecutar el servidor:
