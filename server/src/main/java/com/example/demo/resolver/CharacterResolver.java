@@ -19,16 +19,16 @@ private final CharacterTypeRepository characterTypeRepository;
 		this.appearsRepository = appearsRepository;
 		this.characterTypeRepository = characterTypeRepository;
 	}
-	public List<Friendship> getFriends(Character character,final String identifier,final String fid,final String id){
+	public List<Friendship> getFriends(Character character,final String identifier,final String charid,final String friendId){
 		List<Friendship> join = new ArrayList<Friendship>();
 			if (identifier!=null){
 				String id1=identifier.substring(identifier.lastIndexOf('/')-4,identifier.lastIndexOf('/'));
 				String id2=identifier.substring(identifier.lastIndexOf('/') + 1,identifier.length());
 				join=friendshipRepository.findAllByCharacterAndIdAndFid(character,id1,id2);
-			}else if (fid!=null){
-				join=friendshipRepository.findAllByCharacterAndFid(character,fid);
-			}else if (id!=null){
-				join=friendshipRepository.findAllByCharacterAndId(character,id);
+			}else if (charid!=null){
+				join=friendshipRepository.findAllByCharacterAndId(character,charid);
+			}else if (friendId!=null){
+				join=friendshipRepository.findAllByCharacterAndFid(character,friendId);
 			}else{
 				join=friendshipRepository.findAllByCharacter(character);
 			}

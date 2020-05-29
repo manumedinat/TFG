@@ -34,53 +34,62 @@ exports.generateService= function(triplesMap){
     serviceInit+=  "}\n"
     serviceInit+= "@Transactional(readOnly= true)\n";
     var arrayService=[];
+    var arrayService2=[];
+    var arrayServiceAux=[];
     let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
         for(var i=0; i<poms.length;i++){
             let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
+            let predicate= funciones.getIdsFromPredObjMap(poms[i]).predicateId;
+            var data= funciones.getAttributeFromPredMap(predicate);
             var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
             var identifier= "identifier";
             var id1= funciones.getTemplateFromSubjMap(subjMap).templateId;
             var id2= funciones.getTemplateFromSubjMap(subjMap).templateId2;
             var parent= funciones.getDataTypeFromObjMap_JoinCondition(objMap).parent;
             //para que solo haya un único id en array de datos de cada entidad
-            if(!arrayService.includes(identifier)){
+            /*if(!arrayService.includes(identifier)){
                 arrayService.push(identifier);
+            }*/
+            if(!arrayService2.includes(identifier)){
+                arrayService2.push(identifier);
             }
             if (dataType!=null && dataType.charAt(0)=="{"){
                 var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
                 for(var m=0; m<dataType2.length;m++){
                     dataType= dataType2[m];
-                    arrayService.push(dataType);
+                    arrayServiceAux.push(dataType);
                 }
+                arrayService2.push(data);
             }else if(dataType!=null && !arrayService.includes(dataType) && dataType.charAt(0)!="{"){
                 arrayService.push(dataType);
+                arrayService2.push(data);
              }
     
         }
             serviceInit+= "public List <" + typeClass + "> getAll" + typeClass;
             serviceInit+="(";
-            for (var k=0; k<arrayService.length;k++){
+            for (var k=0; k<arrayService2.length;k++){
                 serviceInit+= "final String ";
-                if(k!=arrayService.length-1){
-                    serviceInit+= arrayService[k] + ", ";
+                if(k!=arrayService2.length-1){
+                    serviceInit+= arrayService2[k] + ", ";
                 }else{
-                    serviceInit+= arrayService[k] + "){\n";
+                    serviceInit+= arrayService2[k] + "){\n";
                 }
             }
             serviceInit+= "\tList <" + typeClass + "> filter= new ArrayList<" + typeClass + ">();\n";
             serviceInit+= "\tif(";
-            for (var k2=0; k2<arrayService.length;k2++){
-                if(k2!=arrayService.length-1){
-                    serviceInit+= arrayService[k2] + "==null && ";
+            for (var k2=0; k2<arrayService2.length;k2++){
+                if(k2!=arrayService2.length-1){
+                    serviceInit+= arrayService2[k2] + "==null && ";
                 }else{
-                    serviceInit+= arrayService[k2] + "==null){\n";
+                    serviceInit+= arrayService2[k2] + "==null){\n";
                 }
             }
             serviceInit+= "\t\tfilter=this." + typeClassLow + "Repository.findAll();\n";
             serviceInit+= "\t}";
-            for (var k3=0; k3<arrayService.length;k3++){
-                if(k3==0 ||(k3==0 && k3==arrayService.length-1)){
-                    serviceInit+= "else if (" + arrayService[k3] + "!=null){\n";
+            for (var k3=0; k3<arrayService2.length;k3++){
+                if(k3==0 ||(k3==0 && k3==arrayService2.length-1)){
+                    serviceInit+= "else if (" + arrayService2[k3] + "!=null){\n";
                     serviceInit+= '\t\tString template="';
                     serviceInit+= funciones.getTemplateFromSubjMap(subjMap).template + '";\n';
                     serviceInit+= "\t\tfilter = entityManager.createQuery\n";
@@ -97,37 +106,44 @@ exports.generateService= function(triplesMap){
                             serviceInit+= templateId2;
                         }
                     serviceInit+=` || '' = '" + identifier + "'" ).getResultList();\n`;
-                }else if(k3!=arrayService.length-1){
+                }else if(k3!=arrayService.length-1 && arrayServiceAux.length==0){
                     serviceInit+= "\t}else{\n";
                     serviceInit+= "\t\tfilter= this." + typeClassLow + "Repository.findAllBy";
-                }
-            }
-            
-            for(k5=1;k5<arrayService.length;k5++){
-                if(k5!=arrayService.length-1){
-                    var paramUpper= arrayService[k5];
-                    paramUpper= paramUpper.charAt(0).toUpperCase() + paramUpper.slice(1);
-                    serviceInit+= paramUpper + "Or";
-                }else if (k5==1 && k5==arrayService.length-1){
+                }else if(arrayServiceAux.length>0){
                     serviceInit+= "\t}else{\n";
-                    serviceInit+= "\t\tfilter= this." + typeClassLow + "Repository.findAllBy";
-                    var paramUpper= arrayService[k5];
-                    paramUpper= paramUpper.charAt(0).toUpperCase() + paramUpper.slice(1);
-                    serviceInit+= paramUpper + "(";
-                }else{
-                    var paramUpper= arrayService[k5];
-                    paramUpper= paramUpper.charAt(0).toUpperCase() + paramUpper.slice(1);
-                    serviceInit+= paramUpper + "(";
+                    serviceInit+= "\t\tfilter = entityManager.createQuery\n";
+                    serviceInit+= `\t("SELECT ` + typeClassLow +  ` FROM ` + typeClass + ` ` + typeClassLow + ` WHERE '' || `;
+                    for (k8=0;k8<arrayServiceAux.length;k8++){
+                        if(k8==arrayServiceAux.length-1){
+                            serviceInit+=`' ' || ` + typeClassLow + `.` + arrayServiceAux[k8];
+                        }else{
+                            serviceInit+= typeClassLow + `.` + arrayServiceAux[k8] + ` || `;
+                        }
+                    }
+                    serviceInit+=` || '' = '" + ` + arrayService2[k3] +`+ "'" ).getResultList();\n`;
                 }
             }
+           for(k5=0;k5<arrayService.length;k5++){
+               if(k5!=arrayService.length-1){
+                var paramUpper= arrayService[k5];
+                paramUpper= paramUpper.charAt(0).toUpperCase() + paramUpper.slice(1);
+                serviceInit+= paramUpper + "Or";
+               }else{
+                var paramUpper= arrayService[k5];
+                paramUpper= paramUpper.charAt(0).toUpperCase() + paramUpper.slice(1);
+                serviceInit+= paramUpper + "(";
+               }
+           }
 
-            for(k4=1;k4<arrayService.length && arrayService[k4]!=null;k4++){
-                if(k4!=arrayService.length-1){
-                    serviceInit+=  arrayService[k4] + ",";
+           if(arrayServiceAux.length==0){
+            for(k4=1;k4<arrayService2.length;k4++){
+                if(k4!=arrayService2.length-1){
+                    serviceInit+=  arrayService2[k4] + ",";
                 }else{
-                    serviceInit+=  arrayService[k4] + ");\n";
+                    serviceInit+=  arrayService2[k4] + ");\n";
                 }
             }
+        }
             serviceInit+= "\t\t}\n\n";
             serviceInit+= "\treturn filter;\n";
             serviceInit+= "\t}\n\n";
@@ -137,7 +153,7 @@ exports.generateService= function(triplesMap){
 /*
 let triplesMaps10= funciones.getTriplesId();
 for(var j=0;j<triplesMaps10.length;j++){
-    //console.log(generateService(triplesMaps10[j]));
+    console.log(this.generateService(triplesMaps10[j]));
     //createFile(serviceFiles[i],textoService);
 }
 /*************************************************************************** */
@@ -154,7 +170,14 @@ exports.generateQueryRoot= function(mappingDoc){
     queryInit+="@Component\n";
     queryInit+="\tpublic class Query implements GraphQLQueryResolver{\n";
     let triplesMaps= funciones.getTriplesId();
-
+    var map= new Map();
+    var map2= new Map();
+    var map3= new Map();
+    var mapEntity1= new Map();
+    var mapOneToMany= new Map();
+    var mapOneToMany2= new Map();
+    var mapOneToMany3= new Map();
+    var mapOneToMany4= new Map();
         /*recorrer todas las triplesMaps*/
         for (var j=0; j< triplesMaps.length;j++){
             let subjMap= funciones.getIdsFromTripleMap(triplesMaps[j]).subjectMapId;
@@ -166,25 +189,54 @@ exports.generateQueryRoot= function(mappingDoc){
             queryInit+="\tpublic Iterable <" + typeClass+ "> list" + typeClass + "(";
             let poms= funciones.getIdsFromTripleMap(triplesMaps[j]).predicateObjectMapIds;
             var arrayData=[];
-            var aux=[];
             /* recorrer todos los objectMaps*/
                 for (var k=0; k<poms.length;k++){
                      let objMap= funciones.getIdsFromPredObjMap(poms[k]).objectMapId;
                      var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
-                     //var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
+                     let predicate= funciones.getIdsFromPredObjMap(poms[k]).predicateId;
+                     var data= funciones.getAttributeFromPredMap(predicate);
                      var identifier= "identifier";
+                     var child= funciones.getDataTypeFromObjMap_JoinCondition(objMap).child; //sacar columna (foreign key)
+                     var parent=funciones.getDataTypeFromObjMap_JoinCondition(objMap).parent;//sacar tripleta padre 
+                     var parentCond= funciones.getDataTypeFromObjMap_JoinCondition(objMap).parentCond;
+                     var parentSubjMap= funciones.getIdsFromTripleMap(parent).subjectMapId;
+                     var parentClass= funciones.getClassNameFromSubjMap(parentSubjMap);
+                     var id1= funciones.getTemplateFromSubjMap(subjMap).templateId;
+                     var id2= funciones.getTemplateFromSubjMap(subjMap).templateId2;
+                     if(parentClass!=null){
+                        map.set(parentClass,[typeClass]);//Map con padre y clase relativa
+                        mapEntity1.set(parentClass,[parentCond,typeClass]);
+                        if(child!=id1){
+                            mapOneToMany.set(parentClass,[child, typeClass]); //Map con: padre--> hijo y clase a la que pertenece el hijo
+                        }else{
+                            mapOneToMany2.set(parentClass,[child,typeClass]);
+                        }
+                     }
+                     if(map2.has(typeClass) && id2!=null){
+                        map3.set(typeClass,[child, parentClass]);// Map con: clase hija-> elemento hijo y clase padre
+                     }else if (child!=null){
+                         map2.set(typeClass,[child, parentClass]); // Map con: clase hija-> elemento hijo y clase padre (siguiente iteración)
+                     }
+    
+                    if(child==id1 && mapOneToMany3.has(typeClass)){
+                        mapOneToMany4.set(typeClass,[parentCond,parentClass])
+                    }else if (child==id1){
+                        mapOneToMany3.set(typeClass,[parentCond,parentClass])
+                    }
                      //para que solo haya un único id en array de datos de cada entidad
                      if(!arrayData.includes(identifier)){
-                     arrayData.push(identifier);
+                        arrayData.push(identifier);
                      }
                      if(dataType!=null && !arrayData.includes(dataType) && dataType.charAt(0)!="{"){
-                        arrayData.push(dataType);
+                        //arrayData.push(dataType);
+                        arrayData.push(data);
                      }else if (dataType!=null && dataType.charAt(0)=="{"){
-                         var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
+                         /*var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
                          for(var m=0; m<dataType2.length;m++){
                              dataType= dataType2[m];
                              arrayData.push(dataType);
-                         }
+                         }*/
+                         arrayData.push(data);
                      } 
             }
 
@@ -209,122 +261,11 @@ exports.generateQueryRoot= function(mappingDoc){
                 queryInit+= "\t}\n\n";
         }
         queryInit+="}";
-        return queryInit;
+        return {queryInit,map,map2,map3,mapOneToMany,mapOneToMany2,mapOneToMany3,mapOneToMany4, mapEntity1};
         
 }
-//console.log(generateQueryRoot(mappingDoc));
+//console.log(this.generateQueryRoot(mappingDoc));
 //createFile(pathQueryFile, generateQueryRoot(mappingDoc));
-/****************************************************************************** */
-function generateMutationRoot(mappingDoc){
-    let mutationInit="";
-    mutationInit+="package com.example.demo.mutation;\n";
-    mutationInit+="import org.springframework.beans.factory.annotation.Autowired;\n";
-    mutationInit+="import org.springframework.stereotype.Component;\n";
-    mutationInit+="import com.coxautodev.graphql.tools.GraphQLMutationResolver;\n";
-    mutationInit+="import com.example.demo.dao.entity.*;\n";
-    mutationInit+="import com.example.demo.dao.entity.Character;\n";
-    mutationInit+="import com.example.demo.service.*;\n";
-    mutationInit+="@Component\n";
-    mutationInit+="\tpublic class Mutation implements GraphQLMutationResolver{\n";
-    let triplesMaps= funciones.getTriplesId();
-    var map= new Map();
-    var map2= new Map();
-    var map3= new Map();
-    var mapEntity1= new Map();
-    var mapOneToMany= new Map();
-    var mapOneToMany2= new Map();
-    var mapOneToMany3= new Map();
-    var mapOneToMany4= new Map();
-    /*recorrer todas las triplesMaps*/
-    for (var j=0; j< triplesMaps.length;j++){
-        let subjMap= funciones.getIdsFromTripleMap(triplesMaps[j]).subjectMapId;
-        let typeClass= funciones.getClassNameFromSubjMap(subjMap);
-        var typeClassLow= typeClass;
-        typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
-        mutationInit+="\t@Autowired\n";
-        mutationInit+="\tprivate " + typeClass + "Service " + typeClassLow + "Service;\n";
-        mutationInit+="\tpublic " + typeClass+ " create" + typeClass + "(";
-        let poms= funciones.getIdsFromTripleMap(triplesMaps[j]).predicateObjectMapIds;
-        var arrayData=[];
-        var aux=[];
-        /* recorrer todos los objectMaps*/
-            for (var k=0; k<poms.length;k++){
-                 let objMap= funciones.getIdsFromPredObjMap(poms[k]).objectMapId;
-                 let predicVal= funciones.getIdsFromPredObjMap(poms[k]).predicateId;
-                 var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
-                 //var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
-                 var identifier= "identifier";
-                 var child= funciones.getDataTypeFromObjMap_JoinCondition(objMap).child; //sacar columna (foreign key)
-                 var parent=funciones.getDataTypeFromObjMap_JoinCondition(objMap).parent;//sacar tripleta padre 
-                 var parentCond= funciones.getDataTypeFromObjMap_JoinCondition(objMap).parentCond;
-                 var parentSubjMap= funciones.getIdsFromTripleMap(parent).subjectMapId;
-                 var parentClass= funciones.getClassNameFromSubjMap(parentSubjMap);
-                 var id1= funciones.getTemplateFromSubjMap(subjMap).templateId;
-                 var id2= funciones.getTemplateFromSubjMap(subjMap).templateId2;
-                 if(parentClass!=null){
-                    map.set(parentClass,[typeClass]);//Map con padre y clase relativa
-                    mapEntity1.set(parentClass,[parentCond,typeClass]);
-                    if(child!=id1){
-                        mapOneToMany.set(parentClass,[child, typeClass]); //Map con: padre--> hijo y clase a la que pertenece el hijo
-                    }else{
-                        mapOneToMany2.set(parentClass,[child,typeClass]);
-                    }
-                 }
-                 if(map2.has(typeClass) && id2!=null){
-                    map3.set(typeClass,[child, parentClass]);// Map con: clase hija-> elemento hijo y clase padre
-                 }else if (child!=null){
-                     map2.set(typeClass,[child, parentClass]); // Map con: clase hija-> elemento hijo y clase padre (siguiente iteración)
-                 }
-
-                if(child==id1 && mapOneToMany3.has(typeClass)){
-                    mapOneToMany4.set(typeClass,[parentCond,parentClass])
-                }else if (child==id1){
-                    mapOneToMany3.set(typeClass,[parentCond,parentClass])
-                }
-                 //para que solo haya un único id en array de datos de cada entidad
-                 if(!arrayData.includes(identifier)){
-                     arrayData.push(identifier);
-                 }
-                 if(dataType!=null && !arrayData.includes(dataType) && dataType.charAt(0)!="{"){
-                    arrayData.push(dataType);
-                 }else if (dataType!=null && dataType.charAt(0)=="{"){
-                     var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
-                     for(var m=0; m<dataType2.length;m++){
-                         dataType= dataType2[m];
-                         arrayData.push(dataType);
-                     }
-                 }
-            }
-        
-            //recorrer parametros de List
-            for(var k=0;k<arrayData.length;k++){
-                if(k!=arrayData.length-1){
-                mutationInit+= "String " + arrayData[k] + ",";
-                }else{
-                mutationInit+= "String " + arrayData[k] + "){\n";
-                }
-                
-            }
-            mutationInit+= "\t\treturn this."+ typeClassLow + "Service.create" + typeClass + " (";
-        
-            //recorrer parametros de return service
-            for(var k2=0;k2<arrayData.length;k2++){
-                if(k2!=arrayData.length-1){
-                    mutationInit+= arrayData[k2] + ",";
-                }else{
-                mutationInit+= arrayData[k2] + ");\n";
-            }
-        }
-        mutationInit+= "\t}\n\n";
-    }
-
-    mutationInit+="}";
-    return {mutationInit,map,map2,map3,mapOneToMany,mapOneToMany2,mapOneToMany3,mapOneToMany4, mapEntity1};
-    
-}
-//console.log(generateMutationRoot(mappingDoc));
-//createFile(pathMutationFile, generateMutationRoot(mappingDoc).mutationInit);
-
 /************************************************************** */
 /*4.1 Crear fichero entity*/
 //createDir(pathDaoEntityDir);
@@ -340,17 +281,24 @@ textoEntity+= "@Data\n";
 textoEntity+= "@EqualsAndHashCode\n";
 textoEntity+= "@Entity\n";
     let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
+    let tableId= funciones.getIdsFromTripleMap(triplesMap).logicalTableId;
     let typeClass= funciones.getClassNameFromSubjMap(subjMap);
     var typeClassLow= typeClass;
+    let tableName= funciones.getNameFromLogicalTable(tableId);
     typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
-    textoEntity+= '@Table (name="' + typeClassLow + '_SW")\n';
+    textoEntity+= '@Table (name="' + tableName + '")\n';
     var arrayEntities=[];
     var idsArray=[];
     var arrayParents=[];
+    var keyAux=[];
+    var valueAux=[];
+    //var mapAdditional= new Map();
     let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
     for(var i=0; i<poms.length;i++){
         let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
         var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
+        let predicate= funciones.getIdsFromPredObjMap(poms[i]).predicateId;
+        var data= funciones.getAttributeFromPredMap(predicate);
         //var identifier= "identifier";
         var template= funciones.getTemplateFromSubjMap(subjMap).template;
         var dataType3= funciones.getTemplateFromSubjMap(subjMap).templateId; //sacar id de template (1º o unico)
@@ -368,14 +316,14 @@ textoEntity+= "@Entity\n";
         var parentSubjMap= funciones.getIdsFromTripleMap(parent).subjectMapId;
         var parentClass= funciones.getClassNameFromSubjMap(parentSubjMap);  
         arrayParents.push(parentClass); //nombres de las clases padres en arrayParents
-        var mapEntity1= generateMutationRoot(mappingDoc).mapEntity1;
-        var map= generateMutationRoot(mappingDoc).map;
-        var map2= generateMutationRoot(mappingDoc).map2;
-        var map3= generateMutationRoot(mappingDoc).map3;
-        var mapOneToMany1= generateMutationRoot(mappingDoc).mapOneToMany;
-        var mapOneToMany2= generateMutationRoot(mappingDoc).mapOneToMany2;
-        var mapOneToMany3= generateMutationRoot(mappingDoc).mapOneToMany3;
-        var mapOneToMany4= generateMutationRoot(mappingDoc).mapOneToMany4;
+        var mapEntity1= this.generateQueryRoot(mappingDoc).mapEntity1;
+        var map= this.generateQueryRoot(mappingDoc).map;
+        var map2= this.generateQueryRoot(mappingDoc).map2;
+        var map3= this.generateQueryRoot(mappingDoc).map3;
+        var mapOneToMany1= this.generateQueryRoot(mappingDoc).mapOneToMany;
+        var mapOneToMany2= this.generateQueryRoot(mappingDoc).mapOneToMany2;
+        var mapOneToMany3= this.generateQueryRoot(mappingDoc).mapOneToMany3;
+        var mapOneToMany4= this.generateQueryRoot(mappingDoc).mapOneToMany4;
         //para que solo haya un único id en array de datos de cada entidad
         if(!arrayEntities.includes(dataType3)){
             arrayEntities.push(dataType3);
@@ -383,20 +331,26 @@ textoEntity+= "@Entity\n";
         if(!arrayEntities.includes(child) && child!=null){
             arrayEntities.push(child);
         }
-        
-            
+       
         if (dataType!=null && dataType.charAt(0)=="{"){
             var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
             for(var m=0; m<dataType2.length;m++){
                 dataType= dataType2[m];
                 arrayEntities.push(dataType);
+                valueAux.push(dataType);
             }
-        }else if(dataType!=null && !arrayEntities.includes(dataType) && dataType.charAt(0)!="{"){
-            arrayEntities.push(dataType);
+            //mapAdditional.set(data, dataType2);
+            keyAux.push(data);
+        }else if(dataType!=null  && dataType.charAt(0)!="{"){
+            if(data!=dataType){
+                keyAux.push(data);
+                valueAux.push(dataType);
+            }
+            if(!arrayEntities.includes(dataType)){
+                arrayEntities.push(dataType);
+            }
          }
-
     }
-
         if(map.has(typeClass) && id2!=null){
             textoEntity+= "@IdClass(" + typeClass + "Id.class)\n";
         }
@@ -496,7 +450,7 @@ textoEntity+= "@Entity\n";
                 }
             }
 
-                /***IDENTIFIER PARA RESTO DE CLASES DISTINTAS DE FRIENDSHIP y CHARACTER*/
+                /***IDENTIFIER PARA CLASES*/
                 textoEntity+= "\tpublic String getIdentifier(){\n";
                 textoEntity+= '\t\tString identifier = "' + template + '";\n';
                 textoEntity+= "\t\tidentifier+= ";
@@ -509,7 +463,30 @@ textoEntity+= "@Entity\n";
                 }
                 textoEntity+= "\t\treturn identifier;\n";
                 textoEntity+= "\t}\n";
-        
+
+                 /***DATOS ADICIONALES*/
+                    if(keyAux.length>0 && valueAux.length>0){
+                        for(var k4=0; k4<keyAux.length;k4++){
+                            textoEntity+= "\tpublic String get";
+                            var additionalHigh= keyAux[k4];
+                            additionalHigh= additionalHigh.charAt(0).toUpperCase() + additionalHigh.slice(1);
+                            textoEntity+=additionalHigh + "(){\n";
+                            if(keyAux.length!=valueAux.length){
+                                textoEntity+= "\t\treturn "; 
+                                for(var k5 in valueAux){
+                                    if(k5==valueAux.length-1){
+                                        textoEntity+= valueAux[k5] + ";\n";
+                                        textoEntity+="\t}\n";
+                                    }else{
+                                        textoEntity+= valueAux[k5] + "+ ' ' + ";
+                                    }
+                                }
+                            }else{
+                                textoEntity+= "\t\treturn " + valueAux[k4] + ";\n";
+                                textoEntity+= "\t}\n";
+                            }
+                        }
+                    }
         textoEntity+="}\n";
         return textoEntity;
 }
@@ -535,32 +512,32 @@ exports.generateRepositories= function(triplesMap){
         textoRepository+= "public interface " + typeClass + "Repository extends JpaRepository<";
         textoRepository+= typeClass + ", String> {\n"
         let arrayRepositories= new Array();
+        let arrayRepositories2= new Array();
         var idsTemplate=[];
         let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
         for(var i=0; i<poms.length;i++){
             let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
             var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
+            let predicate= funciones.getIdsFromPredObjMap(poms[i]).predicateId;
+            var data= funciones.getAttributeFromPredMap(predicate);
             var parent= funciones.getDataTypeFromObjMap_JoinCondition(objMap).parent;
             var id1= funciones.getTemplateFromSubjMap(subjMap).templateId;
             var id2= funciones.getTemplateFromSubjMap(subjMap).templateId2;
             idsTemplate.push(id1);
             idsTemplate.push(id2);
-            /*if(parent==null){
-                arrayRepositories.push(id1);
-            }*/
             if (dataType!=null && dataType.charAt(0)=="{"){
                 var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
                 for(var m=0; m<dataType2.length;m++){
                     dataType= dataType2[m];
-                    arrayRepositories.push(dataType);
+                    arrayRepositories2.push(dataType);
                 }
             }else if(dataType!=null && !arrayRepositories.includes(dataType) && dataType.charAt(0)!="{"){
                 arrayRepositories.push(dataType);
              }
     
         }
-            var map= generateMutationRoot(mappingDoc).map;
-            var mapOneToMany2= generateMutationRoot(mappingDoc).mapOneToMany2;
+            var map= this.generateQueryRoot(mappingDoc).map;
+            var mapOneToMany2= this.generateQueryRoot(mappingDoc).mapOneToMany2;
             if(arrayRepositories.length>0){
             textoRepository+= "List <" + typeClass + "> findAllBy";
             for (var k=0; k<arrayRepositories.length;k++){
@@ -584,11 +561,9 @@ exports.generateRepositories= function(triplesMap){
         }   
             //console.log(map);
             //console.log(mapOneToMany2);  
-
-            if(!arrayRepositories.includes(id1) && parent==null){
-                arrayRepositories.push(id1);
-            }
-
+           if(!arrayRepositories.includes(id1) && id2==null){
+               arrayRepositories.push(id1);
+           }
             if(map.has(typeClass)){
                 var textoRepositoryTemplate="List <" + typeClass + "> findAllBy";
                 var arrayLast= map.get(typeClass);
@@ -618,13 +593,31 @@ exports.generateRepositories= function(triplesMap){
                         textoRepository+= "And" + typeClassUp;
                         textoRepository+= "(" + arrayLast[m] + " " + typeClassLow;
                         textoRepository+= ", String " + arrayRepositories[k3] + ");\n";
-                    } 
+                    }
+
+                    /**findBy de fname and lname junto */
+                    for(var k4=0; k4<arrayRepositories2.length;k4++){
+                        if(k4==0){
+                            textoRepository+= textoRepositoryTemplate + arrayLast[m];
+                        }
+                        var typeClassUp= arrayRepositories2[k4];
+                        typeClassUp= typeClassUp.charAt(0).toUpperCase() + typeClassUp.slice(1);
+                        textoRepository+= "And" + typeClassUp;
+                    }
+                    for(var k5=0; k5<arrayRepositories2.length;k5++){
+                        if(k5==0){
+                            textoRepository+= "(" + arrayLast[m] + " " + typeClassLow;
+                            textoRepository+= ", String " + arrayRepositories2[k5]
+                        }else{
+                            textoRepository+= ", String " + arrayRepositories2[k5] + ");\n";
+                        }
+                    }  
                 }
 
                 if(mapOneToMany2.has(typeClass)){
                     var textoRepositoryTemplate="List <" + typeClass + "> findAllBy";
                     var arrayLast= mapOneToMany2.get(typeClass);
-                    if(arrayLast[1]!= map.get(typeClass)){
+                    if(arrayLast[arrayLast.length-1]!= map.get(typeClass)){
                     for(var m=1; m<arrayLast.length;m++){
                         var typeClassLow= arrayLast[m];
                         typeClassLow= typeClassLow.charAt(0).toLowerCase() + typeClassLow.slice(1);
@@ -641,7 +634,7 @@ exports.generateRepositories= function(triplesMap){
                 }
               }
             }
-            }
+        }
             textoRepository+="}\n";
             return textoRepository;
     }
@@ -659,6 +652,8 @@ function generateType(triplesMap){
     let subjMap= funciones.getIdsFromTripleMap(triplesMap).subjectMapId;
     let typeClass= funciones.getClassNameFromSubjMap(subjMap);
     var arrayType=[];
+    var mapAux= new Map();
+    var arrayAux1=[];
     var parents=[];
     var aux2=[];
     var parentTriples=[];
@@ -687,15 +682,21 @@ function generateType(triplesMap){
             var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
             for(var m=0; m<dataType2.length;m++){
                 dataType= dataType2[m];
-                arrayType.push(dataType);
+                arrayAux1.push(dataType);
             }
+            arrayType.push(funcionesAux);
         }else if(dataType!=null && !arrayType.includes(dataType) && dataType.charAt(0)!="{"){
-            arrayType.push(dataType);
+            //arrayType.push(dataType);
+            arrayType.push(funcionesAux);
+            //para no sobrescribir ya que son iguales
+            if(dataType!=funcionesAux){
+                mapAux.set(funcionesAux, dataType);
+            }
          }
          
 
     }
-
+        //console.log(arrayType);
         for (var k=0;k<arrayType.length;k++){
             textoType+= "\t" + arrayType[k] + ": String\n";
         }
@@ -716,7 +717,7 @@ function generateType(triplesMap){
             }    
         }
         textoType+= "}\n\n"; 
-        return {textoType,arrayType};
+        return {textoType,arrayType, mapAux, arrayAux1};
 }
 
 /**5.2 Generar Query de SCHEMA */
@@ -728,6 +729,8 @@ function generateQuery(triplesMap){
     let poms= funciones.getIdsFromTripleMap(triplesMap).predicateObjectMapIds;
     for(var i=0; i<poms.length;i++){
         let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
+        let predicate= funciones.getIdsFromPredObjMap(poms[i]).predicateId;
+        var data= funciones.getAttributeFromPredMap(predicate);
         var dataType= funciones.getDataTypeFromObjMap(objMap).dataType;
         //var dataType3= funciones.getTemplateFromSubjMap(subjMap); //sacar id de template
         var identifier= "identifier";            
@@ -736,13 +739,15 @@ function generateQuery(triplesMap){
             arrayQuery.push(identifier);
         }
         if (dataType!=null && dataType.charAt(0)=="{"){
-            var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
+            /*var dataType2= funciones.getDataTypeFromObjMap(objMap).arrayTemplates;
             for(var m=0; m<dataType2.length;m++){
                 dataType= dataType2[m];
                 arrayQuery.push(dataType);
-            }
+            }*/
+            arrayQuery.push(data);
         }else if(dataType!=null && !arrayQuery.includes(dataType) && dataType.charAt(0)!="{"){
-            arrayQuery.push(dataType);
+            //arrayQuery.push(dataType);
+            arrayQuery.push(data);
          }
 
     }
@@ -785,7 +790,7 @@ exports.hasIdClass=function(triplesMap){
     for(var i=0; i<poms.length;i++){
         let objMap= funciones.getIdsFromPredObjMap(poms[i]).objectMapId;
         var id2= funciones.getTemplateFromSubjMap(subjMap).templateId2;
-        var map= generateMutationRoot(mappingDoc).map;
+        var map= this.generateQueryRoot(mappingDoc).map;
         if(map.has(typeClass) && id2!=null){
             hasIdClass=true;
         }
@@ -889,10 +894,14 @@ exports.generateResolver= function(triplesMap){
             if(classAux!=null){
                 parents.push(classAux); 
             }
-            parentTriples.push(parent); // insertar padre en array de parents de la tripleta correspondiente
-            aux2.push(funcionesAux); //guardar funciones auxiliares (appearsIn, episode, hero,type) 
+            if(parent!=null){
+                parentTriples.push(parent); // insertar padre en array de parents de la tripleta correspondiente
+            }
+            if(dataType==null){
+                aux2.push(funcionesAux); //guardar funciones auxiliares (appearsIn, episode, hero,type) 
+            }
         }
-        //var map4= generateMutationRoot(mappingDoc).mapOneToMany;
+        //var map4= this.generateQueryRoot(mappingDoc).mapOneToMany;
         for(var j=0; j<parents.length;j++){
             var parentLow= parents[j];
             parentLow= parentLow.charAt(0).toLowerCase() + parentLow.slice(1);
@@ -917,12 +926,16 @@ exports.generateResolver= function(triplesMap){
 
         //recorrer funciones auxiliares (type, appearsIn..)
         var arrayFinal;
+        var arrayFinal2;
+        var arrayFinal3;
         for(var m=0;m<parents.length;m++){
             var auxUpper= aux2[m];
             auxUpper= auxUpper.charAt(0).toUpperCase() + auxUpper.slice(1);
             textoResolver+="\tpublic List<" + parents[m] + "> get" + auxUpper + "(";
             textoResolver+= typeClass + " " + typeClassLow + ",";
             arrayFinal=generateType(parentTriples[m]).arrayType;
+            arrayFinal2=generateType(parentTriples[m]).mapAux;
+            arrayFinal3=generateType(parentTriples[m]).arrayAux1;
             for(var m2=0; m2<arrayFinal.length;m2++){
                 if(m2!=arrayFinal.length-1){
                     textoResolver+= "final String " + arrayFinal[m2] + ",";
@@ -970,8 +983,45 @@ exports.generateResolver= function(triplesMap){
                     }
                 }else{
                     textoResolver+= "\t\t\t}else if (" + arrayFinal[m3] + "!=null){\n";
-                    textoResolver+=  "\t\t\t\tjoin=" + parentLow + "Repository.findAllBy" + typeClass + "And" + elementUpper;
-                    textoResolver+= "(" + typeClassLow + "," + arrayFinal[m3] + ");\n";
+                    //textoResolver+=  "\t\t\t\tjoin=" + parentLow + "Repository.findAllBy" + typeClass + "And" + elementUpper;
+
+                    //CASO TEMPLATE name de Character
+                    if(arrayFinal3.length>0){
+                        for (var m4 in arrayFinal3){
+                            textoResolver+= "\t\t\t\tString " + arrayFinal3[m4] + "=" + arrayFinal[m3];
+                            textoResolver+= '.split(" ") [' + m4 + '];\n';
+                        }
+                        textoResolver+=  "\t\t\t\tjoin=" + parentLow + "Repository.findAllBy" + typeClass + "And";
+                        for (var m5 in arrayFinal3){
+                            var upper3= arrayFinal3[m5];
+                            upper3= upper3.charAt(0).toUpperCase() + upper3.slice(1);
+                            if(m5!=arrayFinal3.length-1){
+                                textoResolver+= upper3;
+                            }else{
+                                textoResolver+= "And" + upper3 + "(";
+                            }
+                        }
+                        textoResolver+= typeClassLow + ",";
+                        for (var m6 in arrayFinal3){
+                            if(m6!=arrayFinal3.length-1){
+                                textoResolver+= arrayFinal3[m6] + ",";
+                            }else{
+                                textoResolver+= arrayFinal3[m6] + ");\n";
+                            }
+                        }
+                    }else{
+                        textoResolver+=  "\t\t\t\tjoin=" + parentLow + "Repository.findAllBy" + typeClass + "And";
+                        //obtener valor de schema asociado a columna (Friendship)
+                        if(arrayFinal2.has(arrayFinal[m3])){
+                            var elementUpper2= arrayFinal2.get(arrayFinal[m3]); 
+                            elementUpper2= elementUpper2.charAt(0).toUpperCase() + elementUpper2.slice(1);
+                            textoResolver+= elementUpper2;
+                        }else{
+                            textoResolver+= elementUpper;
+                        }
+                    
+                        textoResolver+= "(" + typeClassLow + "," + arrayFinal[m3] + ");\n";
+                    }
                 }
             }
 
@@ -997,34 +1047,6 @@ exports.generateResolver= function(triplesMap){
 
 /*7. Añadir dependencias graphql y lombok a pom.xml */
 exports.getPom=function(){
-/*var str =`
-    <dependency>
-       <groupId>com.graphql-java</groupId>
-       <artifactId>graphql-spring-boot-starter</artifactId>
-       <version>5.0.2</version>
-    </dependency>
-    <dependency>
-       <groupId>com.graphql-java</groupId>
-       <artifactId>graphql-java-tools</artifactId>
-       <version>5.2.4</version>
-    </dependency>
-    <dependency>
-       <groupId>com.graphql-java</groupId>
-       <artifactId>graphiql-spring-boot-starter</artifactId>
-       <version>5.0.2</version>
-    </dependency>
-    <dependency>
-         <groupId>mysql</groupId>
-         <artifactId>mysql-connector-java</artifactId>
-         <scope>runtime</scope>
-   </dependency>
-    <dependency>
-       <groupId>org.projectlombok</groupId>
-       <artifactId>lombok</artifactId>
-       <version>1.18.8</version>
-       <optional>true</optional>
-   </dependency>\n`;
-   */
 var str= 
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -1048,10 +1070,6 @@ var str=
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-  </dependency> 
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
@@ -1110,7 +1128,7 @@ exports.getApplicationProperties=function(){
 const textoAppPty= `
 spring.datasource.url=jdbc:mysql://localhost:3306/mydb?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
 spring.datasource.username=root
-spring.datasource.password=Pasapurar14
+spring.datasource.password=@Trabajo1
 spring.jpa.hibernate.use-new-id-generator-mappings=false
 spring.jpa.hibernate.ddl-auto=update`;
 return textoAppPty;

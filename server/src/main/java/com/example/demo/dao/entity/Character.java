@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode
 @Entity
-@Table (name="character_SW")
+@Table (name="characters_sw")
 public class Character implements Serializable{
 private static final long serialVersionUID = 1L;
 
@@ -15,14 +15,14 @@ private static final long serialVersionUID = 1L;
 	@Column(name="id")
 	private String id;
 
-	@Column(name="typeid")
-	private String typeid;
-
 	@Column(name="fname")
 	private String fname;
 
 	@Column(name="lname")
 	private String lname;
+
+	@Column(name="typeid")
+	private String typeid;
 
 	@OneToMany(mappedBy="charid")
 	private List <Heroes> heroes;
@@ -37,5 +37,8 @@ private static final long serialVersionUID = 1L;
 		String identifier = "http://starwars.mappingpedia.linkeddata.es/character/";
 		identifier+= id;
 		return identifier;
+	}
+	public String getName(){
+		return fname+ ' ' + lname;
 	}
 }

@@ -51,7 +51,7 @@ createFile(pathPom, server.getPom());
 
 /**3. Generar QueryRoot */
 createDir(pathQueryDir); // crear directorio de query
-createFile(pathQueryFile, server.generateQueryRoot(mappingDoc)); //crear fichero query
+createFile(pathQueryFile, server.generateQueryRoot(mappingDoc).queryInit); //crear fichero query
 
 /**4. Generar Resources (Entity, Repository) */
 

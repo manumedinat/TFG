@@ -8,7 +8,7 @@
 
 <TMCharacters>
 	rr:logicalTable  [
-		rr:tableName  "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/characters.csv";
+		rr:tableName  "characters_sw";
 	];
 
 	rr:subjectMap [
@@ -58,7 +58,7 @@
 
 <TMTypes>
 	rr:logicalTable  [
-		rr:tableName  "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/types.csv";
+		rr:tableName  "types_sw";
 	];
 
 	rr:subjectMap [
@@ -74,7 +74,7 @@
 
 <TMEpisodes>
 	rr:logicalTable [
-		rr:tableName  "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/episodes.csv";
+		rr:tableName  "episodes_sw";
 	];
 
 	rr:subjectMap [
@@ -90,7 +90,7 @@
 
 <TMAppears>
 	rr:logicalTable [
-		rr:tableName  "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/appears.csv";
+		rr:tableName  "appears_sw";
 	];
 
 	rr:subjectMap [
@@ -113,7 +113,7 @@
 
 <TMFriendship>
 	rr:logicalTable [
-		rr:tableName  "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/friends.csv";
+		rr:tableName  "friends_sw";
 	];
 
 	rr:subjectMap [
@@ -134,7 +134,7 @@
 
 <TMHeroes>
 	rr:logicalTable [
-		rr:tableName  "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/heroes.csv";
+		rr:tableName  "heroes_sw";
 	];
 
 	rr:subjectMap [

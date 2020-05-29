@@ -11,7 +11,7 @@
   "dependencies": {
     "array-move": "^2.2.1",
     "express": "^4.17.1",
-    "fs": "0.0.1-security",
+    "file-system": "^2.2.2",
     "lodash": "^4.17.15",
     "unzip": "^0.1.11",
     "unzipper": "^0.10.11"

@@ -1,13 +1,7 @@
-type Friendship{
-	identifier: String
-	fid: String
-	id: String
-}
-
 type Heroes{
 	identifier: String
+	hero (identifier: String, name: String): [Character]
 	episode (identifier: String, code: String): [Episode]
-	hero (identifier: String, fname: String, lname: String): [Character]
 }
 
 type Appears{
@@ -17,9 +11,8 @@ type Appears{
 
 type Character{
 	identifier: String
-	fname: String
-	lname: String
-	friends (identifier: String, fid: String, id: String): [Friendship]
+	name: String
+	friends (identifier: String, charid: String, friendId: String): [Friendship]
 	appearsIn (identifier: String): [Appears]
 	type (identifier: String, name: String): [CharacterType]
 }
@@ -29,6 +22,12 @@ type Episode{
 	code: String
 }
 
+type Friendship{
+	identifier: String
+	charid: String
+	friendId: String
+}
+
 type CharacterType{
 	identifier: String
 	name: String
@@ -36,10 +35,10 @@ type CharacterType{
 
 
 type Query {
-	 listFriendship(identifier: String, fid: String, id: String):[Friendship]
 	 listHeroes(identifier: String):[Heroes]
 	 listAppears(identifier: String):[Appears]
-	 listCharacter(identifier: String, fname: String, lname: String):[Character]
+	 listCharacter(identifier: String, name: String):[Character]
 	 listEpisode(identifier: String, code: String):[Episode]
+	 listFriendship(identifier: String, charid: String, friendId: String):[Friendship]
 	 listCharacterType(identifier: String, name: String):[CharacterType]
 }

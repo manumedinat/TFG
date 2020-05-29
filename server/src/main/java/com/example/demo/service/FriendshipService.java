@@ -18,16 +18,16 @@ private final FriendshipRepository friendshipRepository;
 	this.friendshipRepository = friendshipRepository;
 }
 @Transactional(readOnly= true)
-public List <Friendship> getAllFriendship(final String identifier, final String fid, final String id){
+public List <Friendship> getAllFriendship(final String identifier, final String charid, final String friendId){
 	List <Friendship> filter= new ArrayList<Friendship>();
-	if(identifier==null && fid==null && id==null){
+	if(identifier==null && charid==null && friendId==null){
 		filter=this.friendshipRepository.findAll();
 	}else if (identifier!=null){
 		String template="http://starwars.mappingpedia.linkeddata.es/friends/";
 		filter = entityManager.createQuery
 	("SELECT friendship FROM Friendship friendship WHERE '"+ template + "' || friendship.id || '/' || friendship.fid || '' = '" + identifier + "'" ).getResultList();
 	}else{
-		filter= this.friendshipRepository.findAllByFidOrId(fid,id);
+		filter= this.friendshipRepository.findAllByIdOrFid(charid,friendId);
 		}
 
 	return filter;

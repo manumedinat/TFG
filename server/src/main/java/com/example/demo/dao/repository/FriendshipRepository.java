@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 @Repository
 public interface FriendshipRepository extends JpaRepository<Friendship, String> {
-List <Friendship> findAllByFidOrId(String fid, String id);
+List <Friendship> findAllByIdOrFid(String id, String fid);
 List <Friendship> findAllByCharacter(Character character);
 List <Friendship> findAllByCharacterAndIdAndFid(Character character,String id,String fid);
-List <Friendship> findAllByCharacterAndFid(Character character, String fid);
 List <Friendship> findAllByCharacterAndId(Character character, String id);
+List <Friendship> findAllByCharacterAndFid(Character character, String fid);
 }

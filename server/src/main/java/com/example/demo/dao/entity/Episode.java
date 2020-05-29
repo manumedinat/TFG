@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode
 @Entity
-@Table (name="episode_SW")
+@Table (name="episodes_sw")
 public class Episode implements Serializable{
 private static final long serialVersionUID = 1L;
 

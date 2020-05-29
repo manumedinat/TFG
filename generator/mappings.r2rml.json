@@ -1,375 +1,375 @@
 {
-    "@context": {
-      "ex": "http://www.example.com/",
-      "fno": "http://w3id.org/function/ontology",
-      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-      "rr": "http://www.w3.org/ns/r2rml#",
-      "schema": "http://schema.org/",
-      "xsd": "http://www.w3.org/2001/XMLSchema#"
-    },
-    "@graph": [
-      {
-        "@id": "_:ub68bL101C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL103C20"
-        },
-        "rr:predicate": {
-          "@id": "schema:episode"
-        }
+  "@context": {
+    "ex": "http://www.example.com/",
+    "fno": "http://w3id.org/function/ontology",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "rr": "http://www.w3.org/ns/r2rml#",
+    "schema": "http://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "_:ub10bL68C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL70C20"
       },
-      {
-        "@id": "_:ub68bL27C23",
-        "rr:child": "id",
-        "rr:parent": "charid"
-      },
-      {
-        "@id": "_:ub68bL147C20",
-        "rr:joinCondition": {
-          "@id": "_:ub68bL149C23"
-        },
-        "rr:parentTriplesMap": {
-          "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMEpisodes"
-        }
-      },
-      {
-        "@id": "_:ub68bL86C20",
-        "rr:column": "code"
-      },
-      {
-        "@id": "_:ub68bL79C16",
-        "rr:class": {
-          "@id": "schema:Episode"
-        },
-        "rr:template": "http://starwars.mappingpedia.linkeddata.es/episode/{id}"
-      },
-      {
-        "@id": "_:ub68bL103C20",
-        "rr:joinCondition": {
-          "@id": "_:ub68bL105C23"
-        },
-        "rr:parentTriplesMap": {
-          "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMEpisodes"
-        }
-      },
-      {
-        "@id": "_:ub68bL118C16",
-        "rr:class": {
-          "@id": "schema:Friendship"
-        },
-        "rr:template": "http://starwars.mappingpedia.linkeddata.es/friends/{id}/{fid}"
-      },
-      {
-        "@id": "_:ub68bL13C16",
-        "rr:class": {
-          "@id": "schema:Character"
-        },
-        "rr:template": "http://starwars.mappingpedia.linkeddata.es/character/{id}"
-      },
-      {
-        "@id": "_:ub68bL68C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL70C20"
-        },
-        "rr:predicate": {
-          "@id": "schema:name"
-        }
-      },
-      {
-        "@id": "_:ub68bL25C20",
-        "rr:joinCondition": {
-          "@id": "_:ub68bL27C23"
-        },
-        "rr:parentTriplesMap": {
-          "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMAppears"
-        }
-      },
-      {
-        "@id": "_:ub68bL91C18",
-        "rr:tableName": "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/appears.csv"
-      },
-      {
-        "@id": "_:ub68bL156C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL158C20"
-        },
-        "rr:predicate": {
-          "@id": "schema:hero"
-        }
-      },
-      {
-        "@id": "_:ub68bL59C19",
-        "rr:tableName": "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/types.csv"
-      },
-      {
-        "@id": "_:ub68bL135C18",
-        "rr:tableName": "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/heroes.csv"
-      },
-      {
-        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMFriendship",
-        "rr:logicalTable": {
-          "@id": "_:ub68bL114C18"
-        },
-        "rr:predicateObjectMap": [
-          {
-            "@id": "_:ub68bL128C24"
-          },
-          {
-            "@id": "_:ub68bL123C24"
-          }
-        ],
-        "rr:subjectMap": {
-          "@id": "_:ub68bL118C16"
-        }
-      },
-      {
-        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMHeroes",
-        "rr:logicalTable": {
-          "@id": "_:ub68bL135C18"
-        },
-        "rr:predicateObjectMap": [
-          {
-            "@id": "_:ub68bL145C24"
-          },
-          {
-            "@id": "_:ub68bL156C24"
-          }
-        ],
-        "rr:subjectMap": {
-          "@id": "_:ub68bL139C16"
-        }
-      },
-      {
-        "@id": "_:ub68bL75C18",
-        "rr:tableName": "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/episodes.csv"
-      },
-      {
-        "@id": "_:ub68bL105C23",
-        "rr:child": "episodeid",
-        "rr:parent": "id"
-      },
-      {
-        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMAppears",
-        "rr:logicalTable": {
-          "@id": "_:ub68bL91C18"
-        },
-        "rr:predicateObjectMap": {
-          "@id": "_:ub68bL101C24"
-        },
-        "rr:subjectMap": {
-          "@id": "_:ub68bL95C16"
-        }
-      },
-      {
-        "@id": "_:ub68bL149C23",
-        "rr:child": "episodeid",
-        "rr:parent": "id"
-      },
-      {
-        "@id": "_:ub68bL160C23",
-        "rr:child": "charid",
-        "rr:parent": "id"
-      },
-      {
-        "@id": "_:ub68bL9C19",
-        "rr:tableName": "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/characters.csv"
-      },
-      {
-        "@id": "_:ub68bL114C18",
-        "rr:tableName": "https://raw.githubusercontent.com/fpriyatna/mapping-translator/master/examples/starwars/friends.csv"
-      },
-      {
-        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMCharacters",
-        "rr:logicalTable": {
-          "@id": "_:ub68bL9C19"
-        },
-        "rr:predicateObjectMap": [
-          {
-            "@id": "_:ub68bL45C24"
-          },
-          {
-            "@id": "_:ub68bL23C24"
-          },
-          {
-            "@id": "_:ub68bL34C24"
-          },
-          {
-            "@id": "_:ub68bL18C24"
-          }
-        ],
-        "rr:subjectMap": {
-          "@id": "_:ub68bL13C16"
-        }
-      },
-      {
-        "@id": "_:ub68bL130C20",
-        "rr:column": "fid"
-      },
-      {
-        "@id": "_:ub68bL95C16",
-        "rr:class": {
-          "@id": "schema:Appears"
-        },
-        "rr:template": "http://starwars.mappingpedia.linkeddata.es/movie/{charid}/{episodeid}"
-      },
-      {
-        "@id": "_:ub68bL123C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL125C20"
-        },
-        "rr:predicate": {
-          "@id": "schema:charid"
-        }
-      },
-      {
-        "@id": "_:ub68bL34C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL36C20"
-        },
-        "rr:predicate": {
-          "@id": "schema:type"
-        }
-      },
-      {
-        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMEpisodes",
-        "rr:logicalTable": {
-          "@id": "_:ub68bL75C18"
-        },
-        "rr:predicateObjectMap": {
-          "@id": "_:ub68bL84C24"
-        },
-        "rr:subjectMap": {
-          "@id": "_:ub68bL79C16"
-        }
-      },
-      {
-        "@id": "_:ub68bL128C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL130C20"
-        },
-        "rr:predicate": {
-          "@id": "schema:friendId"
-        }
-      },
-      {
-        "@id": "_:ub68bL23C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL25C20"
-        },
-        "rr:predicate": {
-          "@id": "ex:appearsIn"
-        }
-      },
-      {
-        "@id": "_:ub68bL84C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL86C20"
-        },
-        "rr:predicate": {
-          "@id": "schema:code"
-        }
-      },
-      {
-        "@id": "_:ub68bL36C20",
-        "rr:joinCondition": {
-          "@id": "_:ub68bL38C23"
-        },
-        "rr:parentTriplesMap": {
-          "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMTypes"
-        }
-      },
-      {
-        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMTypes",
-        "rr:logicalTable": {
-          "@id": "_:ub68bL59C19"
-        },
-        "rr:predicateObjectMap": {
-          "@id": "_:ub68bL68C24"
-        },
-        "rr:subjectMap": {
-          "@id": "_:ub68bL63C16"
-        }
-      },
-      {
-        "@id": "_:ub68bL49C23",
-        "rr:child": "id",
-        "rr:parent": "id"
-      },
-      {
-        "@id": "_:ub68bL70C20",
-        "rr:column": "name"
-      },
-      {
-        "@id": "_:ub68bL145C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL147C20"
-        },
-        "rr:predicate": {
-          "@id": "schema:episode"
-        }
-      },
-      {
-        "@id": "_:ub68bL20C20",
-        "rr:template": "{fname} {lname}"
-      },
-      {
-        "@id": "_:ub68bL47C20",
-        "rr:joinCondition": {
-          "@id": "_:ub68bL49C23"
-        },
-        "rr:parentTriplesMap": {
-          "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMFriendship"
-        }
-      },
-      {
-        "@id": "_:ub68bL63C16",
-        "rr:class": {
-          "@id": "schema:CharacterType"
-        },
-        "rr:template": "http://starwars.mappingpedia.linkeddata.es/type/{id}"
-      },
-      {
-        "@id": "_:ub68bL139C16",
-        "rr:class": {
-          "@id": "schema:Heroes"
-        },
-        "rr:template": "http://starwars.mappingpedia.linkeddata.es/heroes/{episodeid}/{charid}"
-      },
-      {
-        "@id": "_:ub68bL38C23",
-        "rr:child": "typeid",
-        "rr:parent": "id"
-      },
-      {
-        "@id": "_:ub68bL18C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL20C20"
-        },
-        "rr:predicate": {
-          "@id": "schema:name"
-        }
-      },
-      {
-        "@id": "_:ub68bL158C20",
-        "rr:joinCondition": {
-          "@id": "_:ub68bL160C23"
-        },
-        "rr:parentTriplesMap": {
-          "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMCharacters"
-        }
-      },
-      {
-        "@id": "_:ub68bL45C24",
-        "rr:objectMap": {
-          "@id": "_:ub68bL47C20"
-        },
-        "rr:predicate": {
-          "@id": "schema:friends"
-        }
-      },
-      {
-        "@id": "_:ub68bL125C20",
-        "rr:column": "id"
+      "rr:predicate": {
+        "@id": "schema:name"
       }
-    ]
-  }
+    },
+    {
+      "@id": "_:ub10bL86C20",
+      "rr:column": "code"
+    },
+    {
+      "@id": "_:ub10bL95C16",
+      "rr:class": {
+        "@id": "schema:Appears"
+      },
+      "rr:template": "http://starwars.mappingpedia.linkeddata.es/movie/{charid}/{episodeid}"
+    },
+    {
+      "@id": "_:ub10bL49C23",
+      "rr:child": "id",
+      "rr:parent": "id"
+    },
+    {
+      "@id": "_:ub10bL114C18",
+      "rr:tableName": "friends_sw"
+    },
+    {
+      "@id": "_:ub10bL123C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL125C20"
+      },
+      "rr:predicate": {
+        "@id": "schema:charid"
+      }
+    },
+    {
+      "@id": "_:ub10bL59C19",
+      "rr:tableName": "types_sw"
+    },
+    {
+      "@id": "_:ub10bL36C20",
+      "rr:joinCondition": {
+        "@id": "_:ub10bL38C23"
+      },
+      "rr:parentTriplesMap": {
+        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMTypes"
+      }
+    },
+    {
+      "@id": "_:ub10bL135C18",
+      "rr:tableName": "heroes_sw"
+    },
+    {
+      "@id": "_:ub10bL34C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL36C20"
+      },
+      "rr:predicate": {
+        "@id": "schema:type"
+      }
+    },
+    {
+      "@id": "_:ub10bL105C23",
+      "rr:child": "episodeid",
+      "rr:parent": "id"
+    },
+    {
+      "@id": "_:ub10bL18C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL20C20"
+      },
+      "rr:predicate": {
+        "@id": "schema:name"
+      }
+    },
+    {
+      "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMHeroes",
+      "rr:logicalTable": {
+        "@id": "_:ub10bL135C18"
+      },
+      "rr:predicateObjectMap": [
+        {
+          "@id": "_:ub10bL156C24"
+        },
+        {
+          "@id": "_:ub10bL145C24"
+        }
+      ],
+      "rr:subjectMap": {
+        "@id": "_:ub10bL139C16"
+      }
+    },
+    {
+      "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMAppears",
+      "rr:logicalTable": {
+        "@id": "_:ub10bL91C18"
+      },
+      "rr:predicateObjectMap": {
+        "@id": "_:ub10bL101C24"
+      },
+      "rr:subjectMap": {
+        "@id": "_:ub10bL95C16"
+      }
+    },
+    {
+      "@id": "_:ub10bL63C16",
+      "rr:class": {
+        "@id": "schema:CharacterType"
+      },
+      "rr:template": "http://starwars.mappingpedia.linkeddata.es/type/{id}"
+    },
+    {
+      "@id": "_:ub10bL130C20",
+      "rr:column": "fid"
+    },
+    {
+      "@id": "_:ub10bL156C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL158C20"
+      },
+      "rr:predicate": {
+        "@id": "schema:hero"
+      }
+    },
+    {
+      "@id": "_:ub10bL27C23",
+      "rr:child": "id",
+      "rr:parent": "charid"
+    },
+    {
+      "@id": "_:ub10bL25C20",
+      "rr:joinCondition": {
+        "@id": "_:ub10bL27C23"
+      },
+      "rr:parentTriplesMap": {
+        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMAppears"
+      }
+    },
+    {
+      "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMCharacters",
+      "rr:logicalTable": {
+        "@id": "_:ub10bL9C19"
+      },
+      "rr:predicateObjectMap": [
+        {
+          "@id": "_:ub10bL45C24"
+        },
+        {
+          "@id": "_:ub10bL18C24"
+        },
+        {
+          "@id": "_:ub10bL23C24"
+        },
+        {
+          "@id": "_:ub10bL34C24"
+        }
+      ],
+      "rr:subjectMap": {
+        "@id": "_:ub10bL13C16"
+      }
+    },
+    {
+      "@id": "_:ub10bL160C23",
+      "rr:child": "charid",
+      "rr:parent": "id"
+    },
+    {
+      "@id": "_:ub10bL149C23",
+      "rr:child": "episodeid",
+      "rr:parent": "id"
+    },
+    {
+      "@id": "_:ub10bL91C18",
+      "rr:tableName": "appears_sw"
+    },
+    {
+      "@id": "_:ub10bL128C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL130C20"
+      },
+      "rr:predicate": {
+        "@id": "schema:friendId"
+      }
+    },
+    {
+      "@id": "_:ub10bL13C16",
+      "rr:class": {
+        "@id": "schema:Character"
+      },
+      "rr:template": "http://starwars.mappingpedia.linkeddata.es/character/{id}"
+    },
+    {
+      "@id": "_:ub10bL125C20",
+      "rr:column": "id"
+    },
+    {
+      "@id": "_:ub10bL75C18",
+      "rr:tableName": "episodes_sw"
+    },
+    {
+      "@id": "_:ub10bL101C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL103C20"
+      },
+      "rr:predicate": {
+        "@id": "schema:episode"
+      }
+    },
+    {
+      "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMEpisodes",
+      "rr:logicalTable": {
+        "@id": "_:ub10bL75C18"
+      },
+      "rr:predicateObjectMap": {
+        "@id": "_:ub10bL84C24"
+      },
+      "rr:subjectMap": {
+        "@id": "_:ub10bL79C16"
+      }
+    },
+    {
+      "@id": "_:ub10bL158C20",
+      "rr:joinCondition": {
+        "@id": "_:ub10bL160C23"
+      },
+      "rr:parentTriplesMap": {
+        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMCharacters"
+      }
+    },
+    {
+      "@id": "_:ub10bL79C16",
+      "rr:class": {
+        "@id": "schema:Episode"
+      },
+      "rr:template": "http://starwars.mappingpedia.linkeddata.es/episode/{id}"
+    },
+    {
+      "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMFriendship",
+      "rr:logicalTable": {
+        "@id": "_:ub10bL114C18"
+      },
+      "rr:predicateObjectMap": [
+        {
+          "@id": "_:ub10bL123C24"
+        },
+        {
+          "@id": "_:ub10bL128C24"
+        }
+      ],
+      "rr:subjectMap": {
+        "@id": "_:ub10bL118C16"
+      }
+    },
+    {
+      "@id": "_:ub10bL9C19",
+      "rr:tableName": "characters_sw"
+    },
+    {
+      "@id": "_:ub10bL103C20",
+      "rr:joinCondition": {
+        "@id": "_:ub10bL105C23"
+      },
+      "rr:parentTriplesMap": {
+        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMEpisodes"
+      }
+    },
+    {
+      "@id": "_:ub10bL118C16",
+      "rr:class": {
+        "@id": "schema:Friendship"
+      },
+      "rr:template": "http://starwars.mappingpedia.linkeddata.es/friends/{id}/{fid}"
+    },
+    {
+      "@id": "_:ub10bL147C20",
+      "rr:joinCondition": {
+        "@id": "_:ub10bL149C23"
+      },
+      "rr:parentTriplesMap": {
+        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMEpisodes"
+      }
+    },
+    {
+      "@id": "_:ub10bL20C20",
+      "rr:template": "{fname} {lname}"
+    },
+    {
+      "@id": "_:ub10bL47C20",
+      "rr:joinCondition": {
+        "@id": "_:ub10bL49C23"
+      },
+      "rr:parentTriplesMap": {
+        "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMFriendship"
+      }
+    },
+    {
+      "@id": "_:ub10bL23C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL25C20"
+      },
+      "rr:predicate": {
+        "@id": "ex:appearsIn"
+      }
+    },
+    {
+      "@id": "_:ub10bL45C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL47C20"
+      },
+      "rr:predicate": {
+        "@id": "schema:friends"
+      }
+    },
+    {
+      "@id": "_:ub10bL70C20",
+      "rr:column": "name"
+    },
+    {
+      "@id": "_:ub10bL139C16",
+      "rr:class": {
+        "@id": "schema:Heroes"
+      },
+      "rr:template": "http://starwars.mappingpedia.linkeddata.es/heroes/{episodeid}/{charid}"
+    },
+    {
+      "@id": "_:ub10bL84C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL86C20"
+      },
+      "rr:predicate": {
+        "@id": "schema:code"
+      }
+    },
+    {
+      "@id": "_:ub10bL145C24",
+      "rr:objectMap": {
+        "@id": "_:ub10bL147C20"
+      },
+      "rr:predicate": {
+        "@id": "schema:episode"
+      }
+    },
+    {
+      "@id": "_:ub10bL38C23",
+      "rr:child": "typeid",
+      "rr:parent": "id"
+    },
+    {
+      "@id": "file:///base/data/home/apps/s%7Erdf-translator/2.408516547054015808/TMTypes",
+      "rr:logicalTable": {
+        "@id": "_:ub10bL59C19"
+      },
+      "rr:predicateObjectMap": {
+        "@id": "_:ub10bL68C24"
+      },
+      "rr:subjectMap": {
+        "@id": "_:ub10bL63C16"
+      }
+    }
+  ]
+}

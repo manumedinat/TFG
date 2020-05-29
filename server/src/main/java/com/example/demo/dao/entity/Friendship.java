@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode
 @Entity
-@Table (name="friendship_SW")
+@Table (name="friends_sw")
 @IdClass(FriendshipId.class)
 public class Friendship implements Serializable{
 private static final long serialVersionUID = 1L;
@@ -28,5 +28,11 @@ private static final long serialVersionUID = 1L;
 		String identifier = "http://starwars.mappingpedia.linkeddata.es/friends/";
 		identifier+= id + "/" + fid;
 		return identifier;
+	}
+	public String getCharid(){
+		return id;
+	}
+	public String getFriendId(){
+		return fid;
 	}
 }

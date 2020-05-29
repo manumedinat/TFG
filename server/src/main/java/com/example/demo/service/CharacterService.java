@@ -18,16 +18,17 @@ private final CharacterRepository characterRepository;
 	this.characterRepository = characterRepository;
 }
 @Transactional(readOnly= true)
-public List <Character> getAllCharacter(final String identifier, final String fname, final String lname){
+public List <Character> getAllCharacter(final String identifier, final String name){
 	List <Character> filter= new ArrayList<Character>();
-	if(identifier==null && fname==null && lname==null){
+	if(identifier==null && name==null){
 		filter=this.characterRepository.findAll();
 	}else if (identifier!=null){
 		String template="http://starwars.mappingpedia.linkeddata.es/character/";
 		filter = entityManager.createQuery
 	("SELECT character FROM Character character WHERE '"+ template + "' || character.id || '' = '" + identifier + "'" ).getResultList();
 	}else{
-		filter= this.characterRepository.findAllByFnameOrLname(fname,lname);
+		filter = entityManager.createQuery
+	("SELECT character FROM Character character WHERE '' || character.fname || ' ' || character.lname || '' = '" + name+ "'" ).getResultList();
 		}
 
 	return filter;
