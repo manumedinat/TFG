@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "array-move": "^2.2.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "file-system": "^2.2.2",
     "lodash": "^4.17.15",
     "unzip": "^0.1.11",
